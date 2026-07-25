@@ -1,7 +1,20 @@
 import { Router } from 'express';
+import rateLimit from 'express-rate-limit';
+import { requireAuth } from '../middleware/auth';
 
 const router = Router();
 const PISTON_API_URL = process.env.PISTON_API_URL || 'https://emkc.org/api/v2/piston';
+
+const executeLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 10, // 10 requests per minute
+  message: { error: 'Too many execution requests, please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+router.use(requireAuth);
+router.use(executeLimiter);
 
 router.post('/', async (req, res) => {
   try {

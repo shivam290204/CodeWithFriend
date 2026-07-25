@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Settings, User, Bell, LayoutDashboard, Store, BookOpen, Folder, Search, GitBranch, Users, Bug, Plus } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Settings, User, Bell, LayoutDashboard, Store, BookOpen, Folder, Search, GitBranch, Users, Bug, Plus, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function Dashboard() {
@@ -13,23 +13,32 @@ export default function Dashboard() {
     navigate(`/room/${joinCode.trim().toUpperCase()}`);
   };
 
+  useEffect(() => {
+    import('@/lib/api').then(({ probeAuth }) => {
+      probeAuth().then(isAuthed => {
+        if (!isAuthed) {
+          toast.error('Session expired. Please log in again.');
+          navigate('/login');
+        }
+      });
+    });
+  }, [navigate]);
+
   const handleCreate = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/rooms`, {
+      const data = await import('@/lib/api').then(m => m.fetchJson<{roomCode: string}>('/api/rooms', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ name: 'New Session', language: 'javascript' })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        toast.success(`Created room ${data.roomCode}`);
-        navigate(`/room/${data.roomCode}`);
+      }));
+      toast.success(`Created room ${data.roomCode}`);
+      navigate(`/room/${data.roomCode}`);
+    } catch (err: any) {
+      if (err.message && err.message.includes('401')) {
+        toast.error('Session expired. Please log in again.');
+        navigate('/login');
       } else {
-        toast.error('Failed to create room');
+        import('@/lib/api').then(m => toast.error(m.getApiErrorMessage(err, 'Failed to create room')));
       }
-    } catch (error) {
-      toast.error('Network error creating room');
     }
   };
 
@@ -38,9 +47,14 @@ export default function Dashboard() {
       {/* Left Sidebar (Appears disabled/faded out based on mockup context, but present) */}
       <div className="w-[250px] border-r border-[#1E293B] bg-[#0B0C10] flex flex-col hidden md:flex shrink-0">
         <div className="h-14 flex items-center px-4 border-b border-[#1E293B] cursor-pointer">
-          <div className="flex items-center gap-2 text-white font-bold text-lg">
-            <div className="w-6 h-6 bg-[#6366F1] rounded flex items-center justify-center text-xs text-white">CF</div>
-            CodeFlow
+          <div className="flex items-center gap-4">
+            <Link to="/" title="Back to Home" className="text-[#94A3B8] hover:text-white transition-colors bg-[#1E293B] hover:bg-[#334155] p-1.5 rounded-md flex items-center justify-center">
+              <ArrowLeft className="w-4 h-4" />
+            </Link>
+            <Link to="/" className="flex items-center gap-2 text-white font-bold text-lg hover:opacity-80 transition-opacity">
+              <div className="w-6 h-6 bg-[#6366F1] rounded flex items-center justify-center text-xs text-white">CF</div>
+              CodeFlow
+            </Link>
           </div>
         </div>
         
@@ -85,9 +99,14 @@ export default function Dashboard() {
         {/* Top Navbar */}
         <header className="h-14 border-b border-[#1E293B] bg-[#0F111A] flex justify-between items-center px-6 sticky top-0 z-10 shrink-0">
           <div className="flex items-center gap-8">
-            <div className="md:hidden flex items-center gap-2 text-white font-bold text-lg">
-              <div className="w-6 h-6 bg-[#6366F1] rounded flex items-center justify-center text-xs">CF</div>
-              CodeFlow
+            <div className="md:hidden flex items-center gap-4">
+              <Link to="/" title="Back to Home" className="text-[#94A3B8] hover:text-white transition-colors bg-[#1E293B] hover:bg-[#334155] p-1.5 rounded-md flex items-center justify-center">
+                <ArrowLeft className="w-4 h-4" />
+              </Link>
+              <Link to="/" className="flex items-center gap-2 text-white font-bold text-lg hover:opacity-80 transition-opacity">
+                <div className="w-6 h-6 bg-[#6366F1] rounded flex items-center justify-center text-xs">CF</div>
+                CodeFlow
+              </Link>
             </div>
             <nav className="hidden sm:flex gap-6 text-sm">
               <span className="text-white border-b-2 border-[#6366F1] pb-[17px] pt-[19px] cursor-pointer">Dashboard</span>

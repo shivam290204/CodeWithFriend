@@ -2,9 +2,9 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User';
+import { JWT_SECRET } from '../config/env';
 
 const router = Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecretcodesynckey123456789';
 
 router.post('/signup', async (req, res) => {
   try {
@@ -64,6 +64,24 @@ router.get('/me', async (req, res) => {
     res.status(200).json({ user: decoded });
   } catch (err) {
     res.status(401).json({ error: 'Invalid token' });
+  }
+});
+
+router.get('/ws-token', async (req, res) => {
+  const token = req.cookies.token;
+  if (!token) return res.status(401).json({ error: 'Unauthorized: No session cookie' });
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    // Issue a short-lived token for WS handshake
+    const wsToken = jwt.sign(
+      { id: decoded.id, name: decoded.name, email: decoded.email }, 
+      JWT_SECRET, 
+      { expiresIn: '5m' }
+    );
+    res.status(200).json({ wsToken });
+  } catch (err) {
+    res.status(401).json({ error: 'Invalid session' });
   }
 });
 

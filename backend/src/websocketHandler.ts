@@ -3,8 +3,7 @@ import * as Y from 'yjs';
 import jwt from 'jsonwebtoken';
 import { Room } from './models/Room';
 import { Message } from './models/Message';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecretcodesynckey123456789';
+import { JWT_SECRET } from './config/env';
 
 // In-memory state for rooms
 const docs: Map<string, Y.Doc> = new Map();
@@ -19,9 +18,9 @@ export const handleWebSocketConnection = async (ws: WebSocket, request: any) => 
   }
   const roomCode = match[1];
 
-  // Auth (Optional via token in query params or cookie, but let's assume token in query for ws)
+  // Auth
   const token = url.searchParams.get('token');
-  let user: any = { id: 'guest-' + Math.random().toString(36).substring(7), name: 'Guest' };
+  let user: any = null;
   if (token) {
     try {
       user = jwt.verify(token, JWT_SECRET);
@@ -30,10 +29,21 @@ export const handleWebSocketConnection = async (ws: WebSocket, request: any) => 
     }
   }
 
+  if (!user) {
+    ws.close(1008, 'Unauthorized: Missing or invalid token');
+    return;
+  }
+
   // Verify room exists
   const room = await Room.findOne({ roomCode: roomCode.toUpperCase() });
   if (!room) {
     ws.close(1008, 'Room not found');
+    return;
+  }
+
+  // Verify membership
+  if (!room.members.find(m => m.userId === user.id)) {
+    ws.close(1008, 'Unauthorized: Not a member of this room');
     return;
   }
 

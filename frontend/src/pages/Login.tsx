@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
+import { fetchJson, persistAuthed, persistName, getApiErrorMessage } from '@/lib/api';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -11,18 +12,16 @@ export default function Login() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/auth/login`, {
+      const data = await fetchJson<{user: any}>('/api/auth/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-      if (res.ok) {
-        navigate('/dashboard');
-      } else {
-        toast.error('Login failed');
-      }
-    } catch {
-      toast.error('Network error');
+      persistAuthed(true);
+      persistName(data.user?.name);
+      toast.success('Logged in successfully');
+      navigate('/dashboard');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Login failed'));
     }
   };
 

@@ -5,7 +5,7 @@
 import { Link } from "react-router-dom";
 import { useNavigate as useRouter, useParams } from "react-router-dom";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Panel, Group as PanelGroup, Separator as PanelResizeHandle, ImperativePanelHandle } from "react-resizable-panels";
+import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from "react-resizable-panels";
 // @ts-ignore
 
 
@@ -16,7 +16,7 @@ import { MonacoBinding } from "y-monaco";
 import * as monaco from "monaco-editor";
 import { ArrowLeft, Users, MessageSquare, Code2, Play, Terminal, Square, X, Send, Check, Copy, Mic, MicOff, Palette, Type, Keyboard, FileInput, Download, PenTool, Folder, Search, Settings, Share, ChevronDown, FileCode, Sun, Bell, User, GitBranch, Bug } from "lucide-react";
 import { toast } from "sonner";
-import { fetchJson, getActiveToken, getApiErrorMessage, getWsBase, readStoredName } from "@/lib/api";
+import { fetchJson, getApiErrorMessage, getWsBase, readStoredName } from "@/lib/api";
 
 import MonacoEditor from "@monaco-editor/react";
 
@@ -176,8 +176,8 @@ export default function RoomPage() {
   const awarenessRef = useRef<Awareness | null>(null);
   const localUserIdRef = useRef<string>(`${Date.now()}-${Math.random().toString(16).slice(2)}`);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
-  const leftPanelRef = useRef<ImperativePanelHandle>(null);
-  const rightPanelRef = useRef<ImperativePanelHandle>(null);
+  const leftPanelRef = useRef<any>(null);
+  const rightPanelRef = useRef<any>(null);
 
   // Tracking cursor activity and known users
   const lastActivityMapRef = useRef<Map<number, number>>(new Map());
@@ -198,18 +198,10 @@ export default function RoomPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [chatOpen, setChatOpen] = useState(true);
 
-  useEffect(() => {
-    if (sidebarOpen) leftPanelRef.current?.expand();
-    else leftPanelRef.current?.collapse();
-  }, [sidebarOpen]);
 
-  useEffect(() => {
-    if (chatOpen) rightPanelRef.current?.expand();
-    else rightPanelRef.current?.collapse();
-  }, [chatOpen]);
 
   const [currentUserName, setCurrentUserName] = useState("Developer");
-  const [panelSizes, setPanelSizes] = useState<number[]>([20, 60, 20]);
+  const [panelSizes, setPanelSizes] = useState<number[]>([25, 50, 25]);
   const [copyingCode, setCopyingCode] = useState(false);
   const [docEmpty, setDocEmpty] = useState(true);
   const [, setAwarenessTick] = useState(0);
@@ -257,11 +249,31 @@ export default function RoomPage() {
     setError(null);
     try {
       const data = await fetchJson<RoomDetails>(`/api/rooms/${roomCode}`);
-      setRoom(data);
+      setRoom({ ...data, isMember: true });
       setMembers(data.members || []);
       setLanguage(data.language || "javascript");
-    } catch (err) {
-      setError(getApiErrorMessage(err, "Unable to load room details."));
+      
+      try {
+        const history = await fetchJson<any[]>(`/api/rooms/${roomCode}/messages`);
+        if (Array.isArray(history)) {
+          setMessages(history.map(msg => ({
+            id: msg.id || msg._id || Math.random().toString(),
+            text: msg.text || msg.message || msg.content || '',
+            author: msg.senderName || msg.author || 'User',
+            createdAt: msg.createdAt || msg.timestamp
+          })));
+        }
+      } catch (err) {
+        console.warn("Failed to load message history");
+      }
+    } catch (err: any) {
+      const errorMsg = getApiErrorMessage(err, "Unable to load room details.");
+      if (errorMsg.includes("403") || errorMsg.includes("Access denied")) {
+        setRoom({ roomCode, isMember: false });
+        setError(null); // Clear error to show the Join UI
+      } else {
+        setError(errorMsg);
+      }
     } finally {
       setLoading(false);
     }
@@ -338,7 +350,10 @@ export default function RoomPage() {
     ytext.observe(updateEmptyState);
     updateEmptyState();
 
-    getActiveToken().then((token) => {
+    fetchJson<{wsToken: string}>("/api/auth/ws-token")
+      .then((res) => res.wsToken)
+      .catch(() => null)
+      .then((token) => {
       if (!isMounted) return;
       const socket = new WebSocket(
         `${getWsBase()}/ws/room/${roomCode}?token=${encodeURIComponent(token || "")}`
@@ -604,21 +619,14 @@ export default function RoomPage() {
     setOutputLogs([{ id: `${Date.now()}`, type: "info", text: `Running code (${language.toUpperCase()})...`, time: new Date().toLocaleTimeString() }]);
 
     try {
-      const res = await fetch("/api/execute", {
+      const data = await fetchJson<any>("/api/execute", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ language, code, stdin: stdinText }),
       });
 
       const endTime = performance.now();
       setExecutionTime(Math.round(endTime - startTime));
 
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || `Execution API returned HTTP ${res.status}`);
-      }
-
-      const data = await res.json();
       const newLogs: { id: string; type: "info" | "stdout" | "stderr" | "success"; text: string; time?: string }[] = [];
 
       if (data.stdout) {
@@ -838,10 +846,15 @@ export default function RoomPage() {
       {/* Top Navbar */}
       <header className="h-14 border-b border-[#1E293B] bg-[#0F111A] flex justify-between items-center px-6 sticky top-0 z-10 shrink-0">
         <div className="flex items-center gap-6">
-          <Link to="/dashboard" className="flex items-center gap-2 text-white font-bold text-lg hover:opacity-80 transition-opacity">
-            <div className="w-6 h-6 bg-[#6366F1] rounded flex items-center justify-center text-xs">CF</div>
-            CodeFlow
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link to="/dashboard" title="Back to Dashboard" className="text-[#94A3B8] hover:text-white transition-colors bg-[#1E293B] hover:bg-[#334155] p-1.5 rounded-md flex items-center justify-center">
+              <ArrowLeft className="w-4 h-4" />
+            </Link>
+            <Link to="/dashboard" className="flex items-center gap-2 text-white font-bold text-lg hover:opacity-80 transition-opacity">
+              <div className="w-6 h-6 bg-[#6366F1] rounded flex items-center justify-center text-xs">CF</div>
+              CodeFlow
+            </Link>
+          </div>
           <div className="hidden sm:flex items-center px-3 py-1 bg-[#1E293B] rounded-md text-xs font-semibold text-white">
             <Folder className="w-3.5 h-3.5 mr-2 text-[#6366F1]" />
             {room?.name || 'Project Alpha'} <span className="text-[#64748B] ml-2">({roomCode})</span>
@@ -936,20 +949,19 @@ export default function RoomPage() {
               }
             }}
           >
-            {/* Explore Sidebar Panel */}
-            <Panel
-              id="left-panel"
-              ref={leftPanelRef}
-              collapsible={true}
-              collapsedSize={0}
-              order={1}
-              defaultSize={20}
-              minSize={12}
-              maxSize={25}
-              className={`bg-[#0F111A] border-r border-[#1E293B] flex flex-col ${sidebarOpen ? '' : 'hidden'}`}
-            >
-              {sidebarOpen && (
-                <>
+            {sidebarOpen && (
+              <>
+                <Panel
+                  id="left-panel"
+                  ref={leftPanelRef}
+                  collapsible={true}
+                  collapsedSize={0}
+                  order={1}
+                  defaultSize={50}
+                  minSize={10}
+                  maxSize={200}
+                  className="bg-[#0F111A] flex flex-col overflow-hidden border-r border-[#1E293B]"
+                >
                   <div className="h-9 flex items-center px-4 text-[11px] font-bold text-[#94A3B8] tracking-wider shrink-0 uppercase mt-2">
                     Explorer
                   </div>
@@ -1002,18 +1014,17 @@ export default function RoomPage() {
                       </div>
                     </div>
                   </div>
-                </>
-              )}
-            </Panel>
-            
-            <PanelResizeHandle className={`w-1 bg-transparent hover:bg-[#6366F1] transition-colors cursor-col-resize relative z-20 shrink-0 ${sidebarOpen ? '' : 'hidden'}`} />
+                </Panel>
+                <PanelResizeHandle className="w-1 bg-transparent hover:bg-[#6366F1] transition-colors cursor-col-resize relative z-20 shrink-0" />
+              </>
+            )}
 
             {/* Center Editor Panel */}
             <Panel
               id="center-panel"
               order={2}
-              defaultSize={60}
-              minSize={40}
+              defaultSize={50}
+              minSize={20}
               className="flex flex-col bg-[#0B0C10] relative"
             >
               {/* Editor Tabs & Toolbar */}
@@ -1149,22 +1160,21 @@ export default function RoomPage() {
               )}
             </Panel>
 
-            <PanelResizeHandle className={`w-[1px] bg-zinc-800 hover:bg-primary transition-colors cursor-col-resize relative z-20 shrink-0 ${chatOpen ? '' : 'hidden'}`} />
-            
-            {/* Right Chat Panel */}
-            <Panel
-              id="right-panel"
-              ref={rightPanelRef}
-              collapsible={true}
-              collapsedSize={0}
-              order={3}
-              defaultSize={20}
-              minSize={15}
-              maxSize={35}
-              className={`bg-[#0F111A] flex flex-col border-l border-[#1E293B] ${chatOpen ? '' : 'hidden'}`}
-            >
-              {chatOpen && (
-                <>
+            {chatOpen && (
+              <>
+                <PanelResizeHandle className="w-[1px] bg-zinc-800 hover:bg-primary transition-colors cursor-col-resize relative z-20 shrink-0" />
+                
+                <Panel
+                  id="right-panel"
+                  ref={rightPanelRef}
+                  collapsible={true}
+                  collapsedSize={0}
+                  order={3}
+                  defaultSize={50}
+                  minSize={10}
+                  maxSize={300}
+                  className="bg-[#0F111A] flex flex-col overflow-hidden border-l border-[#1E293B]"
+                >
                   {/* Team Section */}
                   <div className="h-9 flex items-center justify-between px-4 text-[11px] font-bold text-[#94A3B8] tracking-wider uppercase shrink-0 border-b border-[#1E293B]">
                     <div className="flex items-center gap-2">
@@ -1250,9 +1260,9 @@ export default function RoomPage() {
                       </button>
                     </div>
                   </form>
-                </>
-              )}
-            </Panel>
+                </Panel>
+              </>
+            )}
           </PanelGroup>
         </div>
       </div>
