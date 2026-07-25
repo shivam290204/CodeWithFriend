@@ -61,7 +61,7 @@ export default function Dashboard() {
         <div className="p-4 border-b border-[#1E293B] bg-[#1E293B]/20">
           <h2 className="text-sm font-semibold text-white mb-1">Project Alpha</h2>
           <p className="text-xs text-[#94A3B8]">main branch</p>
-          <button className="mt-4 w-full flex items-center justify-center gap-2 py-1.5 bg-[#1E293B] hover:bg-[#334155] rounded border border-[#334155] text-sm text-[#E2E8F0] transition-colors">
+          <button onClick={handleCreate} className="mt-4 w-full flex items-center justify-center gap-2 py-1.5 bg-[#1E293B] hover:bg-[#334155] rounded border border-[#334155] text-sm text-[#E2E8F0] transition-colors">
             <Plus className="w-4 h-4" /> New File
           </button>
         </div>

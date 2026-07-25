@@ -4,6 +4,7 @@ import Room from './pages/Room';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
+import ComingSoon from './pages/ComingSoon';
 import { ReactLenis } from 'lenis/react';
 
 function App() {
@@ -16,6 +17,9 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/marketplace" element={<ComingSoon />} />
+          <Route path="/docs" element={<ComingSoon />} />
+          <Route path="/pricing" element={<ComingSoon />} />
         </Routes>
       </BrowserRouter>
     </ReactLenis>
