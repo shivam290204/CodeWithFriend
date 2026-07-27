@@ -898,7 +898,7 @@ export default function RoomPage() {
       <div className="flex min-h-screen items-center justify-center bg-zinc-950 px-6 text-zinc-100 font-sans">
         <div className="flex flex-col items-center gap-3">
           <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          <p className="text-sm font-medium text-zinc-400">Connecting to collaborative environment…</p>
+          <p className="text-sm font-medium text-white/60">Connecting to collaborative environment…</p>
         </div>
       </div>
     );
@@ -927,7 +927,7 @@ export default function RoomPage() {
         <div className="max-w-md rounded-xl border border-zinc-800 bg-zinc-900 p-8 text-center shadow-2xl">
           <p className="text-xs uppercase tracking-[0.2em] text-primary font-bold">Membership Required</p>
           <h1 className="mt-3 text-2xl font-bold">You are not yet in this session.</h1>
-          <p className="mt-2 text-sm text-zinc-400 leading-relaxed">
+          <p className="mt-2 text-sm text-white/60 leading-relaxed">
             Join below to participate in real-time co-editing and sync with peers.
           </p>
           {error ? (
@@ -945,7 +945,7 @@ export default function RoomPage() {
             </button>
             <button
               onClick={() => router("/dashboard")}
-              className="rounded-lg border border-zinc-800 px-6 py-2.5 text-xs font-bold uppercase tracking-widest text-zinc-200 transition hover:bg-zinc-800"
+              className="rounded-lg border border-zinc-800 px-6 py-2.5 text-xs font-bold uppercase tracking-widest text-white/90 transition hover:bg-zinc-800"
             >
               Dashboard
             </button>
@@ -1029,14 +1029,14 @@ export default function RoomPage() {
       </div>
 
       {/* Top Navbar */}
-      <header className="h-14 border-b border-[#1E293B] bg-[#0F111A] flex justify-between items-center px-6 sticky top-0 z-10 shrink-0">
+      <header className="h-14 border-b border-[#1E293B] bg-[#080420] flex justify-between items-center px-6 sticky top-0 z-10 shrink-0">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-4">
             <Link to="/dashboard" title="Back to Dashboard" className="text-[#94A3B8] hover:text-white transition-colors bg-[#1E293B] hover:bg-[#334155] p-1.5 rounded-md flex items-center justify-center">
               <ArrowLeft className="w-4 h-4" />
             </Link>
             <Link to="/dashboard" className="flex items-center gap-2 text-white font-bold text-lg hover:opacity-80 transition-opacity">
-              <div className="w-6 h-6 bg-[#6366F1] rounded flex items-center justify-center text-xs">CF</div>
+              <img src="/logo.png" alt="CodeFlow" className="h-7 w-auto scale-125 origin-left object-contain" />
               CodeFlow
             </Link>
           </div>
@@ -1074,7 +1074,7 @@ export default function RoomPage() {
       {/* Main Workspace */}
       <div className="flex-1 flex overflow-hidden">
         {/* Activity Bar (Far Left) */}
-        <div className="w-[50px] bg-[#0B0C10] border-r border-[#1E293B] flex flex-col items-center py-4 gap-6 shrink-0 z-10 hidden md:flex">
+        <div className="w-[50px] bg-[#0c0630] border-r border-[#1E293B] flex flex-col items-center py-4 gap-6 shrink-0 z-10 hidden md:flex">
           <button onClick={() => handleActivityBarClick('explorer')} title="Explorer" className={`transition-colors ${sidebarOpen && activeSidebarTab === 'explorer' ? 'text-white border-l-2 border-[#6366F1] -ml-[2px] pl-[2px]' : 'text-[#64748B] hover:text-[#94A3B8]'}`}>
             <Folder className="w-6 h-6" />
           </button>
@@ -1120,7 +1120,7 @@ export default function RoomPage() {
                   defaultSize={50}
                   minSize={10}
                   maxSize={300}
-                  className="bg-[#0F111A] flex flex-col overflow-hidden border-r border-[#1E293B]"
+                  className="bg-[#080420] flex flex-col overflow-hidden border-r border-[#1E293B]"
                 >
                   {activeSidebarTab === 'explorer' && (
                     <>
@@ -1196,7 +1196,7 @@ export default function RoomPage() {
                         Search
                       </div>
                       <div className="p-4 text-xs text-[#94A3B8]">
-                        <input type="text" placeholder="Search..." className="w-full bg-[#0F111A] border border-[#1E293B] rounded px-2 py-1.5 text-white outline-none focus:border-[#6366F1] placeholder:text-[#475569]" />
+                        <input type="text" placeholder="Search..." className="w-full bg-[#080420] border border-[#1E293B] rounded px-2 py-1.5 text-white outline-none focus:border-[#6366F1] placeholder:text-[#475569]" />
                         <div className="mt-4 text-center opacity-50">Search functionality coming soon</div>
                       </div>
                     </>
@@ -1234,10 +1234,10 @@ export default function RoomPage() {
               order={2}
               defaultSize={50}
               minSize={20}
-              className="flex flex-col bg-[#0B0C10] relative"
+              className="flex flex-col bg-[#0c0630] relative"
             >
               {/* Editor Tabs & Toolbar */}
-              <div className="h-10 bg-[#0F111A] flex items-center justify-between shrink-0 overflow-hidden pr-2">
+              <div className="h-10 bg-[#080420] flex items-center justify-between shrink-0 overflow-hidden pr-2">
                 <div className="flex h-full overflow-x-auto scrollbar-hide">
                   {openFiles.map(fileId => {
                     const isWhiteboard = fileId === "virtual-whiteboard";
@@ -1255,9 +1255,9 @@ export default function RoomPage() {
                             handleFileClick(fileId, file.language);
                           }
                         }}
-                        className={`h-full px-3 flex items-center gap-2 text-[11px] border-r border-[#1E293B] cursor-pointer group transition-colors min-w-fit ${isActive ? 'bg-[#0B0C10] text-[#E2E8F0] border-t-2 border-t-[#6366F1]' : 'bg-[#0F111A] text-[#64748B] border-t-2 border-t-transparent hover:bg-[#151822] hover:text-[#94A3B8]'}`}
+                        className={`h-full px-3 flex items-center gap-2 text-[11px] border-r border-[#1E293B] cursor-pointer group transition-colors min-w-fit ${isActive ? 'bg-[#0c0630] text-[#E2E8F0] border-t-2 border-t-[#6366F1]' : 'bg-[#080420] text-[#64748B] border-t-2 border-t-transparent hover:bg-[#151822] hover:text-[#94A3B8]'}`}
                       >
-                        {isWhiteboard ? <PenTool className="w-3.5 h-3.5 text-[#a855f7]" /> : isSettings ? <Settings className="w-3.5 h-3.5 text-zinc-400" /> : <FileCode className={`w-3.5 h-3.5 ${getLanguageIconColor(file.language)}`} />}
+                        {isWhiteboard ? <PenTool className="w-3.5 h-3.5 text-[#a855f7]" /> : isSettings ? <Settings className="w-3.5 h-3.5 text-white/60" /> : <FileCode className={`w-3.5 h-3.5 ${getLanguageIconColor(file.language)}`} />}
                         <span className="font-medium">{file.name}</span>
                         <button 
                           onClick={(e) => handleCloseTab(e, fileId)}
@@ -1273,7 +1273,7 @@ export default function RoomPage() {
                   <button
                     onClick={handleRunCode}
                     disabled={isRunning}
-                    className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-400 hover:text-emerald-300 transition-colors uppercase tracking-wider disabled:opacity-50"
+                    className="flex items-center gap-1.5 text-[11px] font-bold text-white hover:text-white transition-colors uppercase tracking-wider disabled:opacity-50"
                   >
                     <Play className={`w-3.5 h-3.5 ${isRunning ? 'animate-spin' : ''}`} />
                     <span>{isRunning ? "Running" : "Run"}</span>
@@ -1285,7 +1285,7 @@ export default function RoomPage() {
                       }
                       setActiveFileId("virtual-whiteboard");
                     }}
-                    className="flex items-center gap-1.5 text-[11px] font-bold text-zinc-400 hover:text-zinc-200 transition-colors uppercase tracking-wider"
+                    className="flex items-center gap-1.5 text-[11px] font-bold text-white/60 hover:text-white/90 transition-colors uppercase tracking-wider"
                   >
                     <PenTool className="w-3.5 h-3.5" />
                     <span>Whiteboard</span>
@@ -1302,7 +1302,7 @@ export default function RoomPage() {
                     <Whiteboard yDoc={yDocRef.current} onClose={() => handleCloseTab({ stopPropagation: () => {} } as any, "virtual-whiteboard")} />
                   </div>
                 ) : activeFileId === "virtual-settings" ? (
-                  <div className="flex-1 overflow-y-auto p-8 bg-[#0B0C10] text-zinc-300">
+                  <div className="flex-1 overflow-y-auto p-8 bg-[#0c0630] text-white/80">
                     <div className="max-w-2xl">
                       <h2 className="text-2xl font-semibold mb-6 text-white flex items-center gap-2">
                         <Settings className="w-6 h-6" /> Settings
@@ -1311,7 +1311,7 @@ export default function RoomPage() {
                       <section className="mb-8">
                         <h3 className="text-lg font-medium text-white mb-4 border-b border-[#1E293B] pb-2">Editor</h3>
                         <div className="space-y-4">
-                          <div className="flex items-center justify-between p-4 bg-[#0F111A] rounded-lg border border-[#1E293B]">
+                          <div className="flex items-center justify-between p-4 bg-[#080420] rounded-lg border border-[#1E293B]">
                             <div>
                               <div className="font-medium text-white">Color Theme</div>
                               <div className="text-xs text-[#94A3B8] mt-1">Select the visual theme of the editor</div>
@@ -1319,14 +1319,14 @@ export default function RoomPage() {
                             <select
                               value={editorTheme}
                               onChange={(e) => setEditorTheme(e.target.value)}
-                              className="bg-[#0B0C10] border border-[#1E293B] text-white text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#6366F1] min-w-[150px]"
+                              className="bg-[#0c0630] border border-[#1E293B] text-white text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#6366F1] min-w-[150px]"
                             >
                               <option value="codesync-dark">Dark</option>
                               <option value="codesync-light">Light</option>
                             </select>
                           </div>
                           
-                          <div className="flex items-center justify-between p-4 bg-[#0F111A] rounded-lg border border-[#1E293B]">
+                          <div className="flex items-center justify-between p-4 bg-[#080420] rounded-lg border border-[#1E293B]">
                             <div>
                               <div className="font-medium text-white">Font Size</div>
                               <div className="text-xs text-[#94A3B8] mt-1">Controls the font size in pixels</div>
@@ -1335,11 +1335,11 @@ export default function RoomPage() {
                               type="number"
                               value={editorFontSize}
                               onChange={(e) => setEditorFontSize(Number(e.target.value))}
-                              className="bg-[#0B0C10] border border-[#1E293B] text-white text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#6366F1] w-[150px]"
+                              className="bg-[#0c0630] border border-[#1E293B] text-white text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#6366F1] w-[150px]"
                             />
                           </div>
 
-                          <div className="flex items-center justify-between p-4 bg-[#0F111A] rounded-lg border border-[#1E293B]">
+                          <div className="flex items-center justify-between p-4 bg-[#080420] rounded-lg border border-[#1E293B]">
                             <div>
                               <div className="font-medium text-white">Keybinding</div>
                               <div className="text-xs text-[#94A3B8] mt-1">Editor keybinding mode</div>
@@ -1347,7 +1347,7 @@ export default function RoomPage() {
                             <select
                               value={editorKeybinding}
                               onChange={(e) => setEditorKeybinding(e.target.value)}
-                              className="bg-[#0B0C10] border border-[#1E293B] text-white text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#6366F1] min-w-[150px]"
+                              className="bg-[#0c0630] border border-[#1E293B] text-white text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#6366F1] min-w-[150px]"
                             >
                               <option value="default">Default</option>
                               <option value="vim">Vim</option>
@@ -1381,25 +1381,25 @@ export default function RoomPage() {
               {/* Execution Terminal Panel */}
               {outputPanelOpen && (
                 <div className="h-48 sm:h-56 bg-zinc-950 border-t border-zinc-800 flex flex-col shrink-0 font-mono text-xs z-20">
-                  <div className="h-7 bg-zinc-900 border-b border-zinc-800 px-3 flex items-center justify-between text-zinc-300 shrink-0">
+                  <div className="h-7 bg-zinc-900 border-b border-zinc-800 px-3 flex items-center justify-between text-white/80 shrink-0">
                     <div className="flex items-center gap-3">
-                      <Terminal className="w-3.5 h-3.5 text-zinc-400" />
-                      <span className="font-bold uppercase tracking-wider text-[10px] text-zinc-400">Terminal</span>
+                      <Terminal className="w-3.5 h-3.5 text-white/60" />
+                      <span className="font-bold uppercase tracking-wider text-[10px] text-white/60">Terminal</span>
                       {executionTime !== null && (
-                        <span className="text-[9px] text-emerald-400 font-bold">
+                        <span className="text-[9px] text-white font-bold">
                           {executionTime}ms
                         </span>
                       )}
                       <button
                         onClick={() => setShowStdin((v) => !v)}
-                        className={`text-[9px] uppercase font-bold transition-colors ${showStdin || stdinText.trim() ? "text-sky-400" : "text-zinc-500 hover:text-zinc-300"}`}
+                        className={`text-[9px] uppercase font-bold transition-colors ${showStdin || stdinText.trim() ? "text-white" : "text-white/50 hover:text-white/80"}`}
                       >
                         stdin {stdinText.trim() ? "(!)" : ""}
                       </button>
                     </div>
                     <div className="flex items-center gap-3">
-                      <button onClick={() => setOutputLogs([])} className="text-[9px] uppercase font-bold text-zinc-500 hover:text-zinc-300">Clear</button>
-                      <button onClick={() => setOutputPanelOpen(false)}><X className="w-3.5 h-3.5 text-zinc-500 hover:text-zinc-300" /></button>
+                      <button onClick={() => setOutputLogs([])} className="text-[9px] uppercase font-bold text-white/50 hover:text-white/80">Clear</button>
+                      <button onClick={() => setOutputPanelOpen(false)}><X className="w-3.5 h-3.5 text-white/50 hover:text-white/80" /></button>
                     </div>
                   </div>
 
@@ -1409,14 +1409,14 @@ export default function RoomPage() {
                         value={stdinText}
                         onChange={(e) => setStdinText(e.target.value)}
                         placeholder="Standard Input..."
-                        className="w-full h-12 bg-zinc-950 border border-zinc-800 rounded p-1.5 text-zinc-300 font-mono text-[11px] focus:outline-none focus:border-zinc-600 resize-none custom-scrollbar"
+                        className="w-full h-12 bg-zinc-950 border border-zinc-800 rounded p-1.5 text-white/80 font-mono text-[11px] focus:outline-none focus:border-zinc-600 resize-none custom-scrollbar"
                       />
                     </div>
                   )}
 
                   <div className="flex-1 overflow-y-auto p-3 space-y-1 select-text custom-scrollbar bg-zinc-950">
                     {isRunning ? (
-                      <div className="flex items-center gap-2 text-zinc-400 py-2">
+                      <div className="flex items-center gap-2 text-white/60 py-2">
                         <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-zinc-400 border-t-transparent" />
                         <span>Running...</span>
                       </div>
@@ -1430,10 +1430,10 @@ export default function RoomPage() {
                             log.type === "stderr"
                               ? "text-red-400"
                               : log.type === "success"
-                                ? "text-emerald-400"
+                                ? "text-white"
                                 : log.type === "info"
-                                  ? "text-sky-400"
-                                  : "text-zinc-300"
+                                  ? "text-white"
+                                  : "text-white/80"
                           }`}
                         >
                           <span className="flex-1">{log.text}</span>
@@ -1458,7 +1458,7 @@ export default function RoomPage() {
                   defaultSize={50}
                   minSize={10}
                   maxSize={300}
-                  className="bg-[#0F111A] flex flex-col overflow-hidden border-l border-[#1E293B]"
+                  className="bg-[#080420] flex flex-col overflow-hidden border-l border-[#1E293B]"
                 >
                   {/* Team Section */}
                   <div className="h-9 flex items-center justify-between px-4 text-[11px] font-bold text-[#94A3B8] tracking-wider uppercase shrink-0 border-b border-[#1E293B]">
@@ -1553,7 +1553,7 @@ export default function RoomPage() {
       </div>
 
       {/* CodeFlow Style Status Bar */}
-      <footer className="h-6 bg-[#0B0C10] border-t border-[#1E293B] flex items-center justify-between text-[10px] font-mono text-[#64748B] shrink-0 select-none">
+      <footer className="h-6 bg-[#0c0630] border-t border-[#1E293B] flex items-center justify-between text-[10px] font-mono text-[#64748B] shrink-0 select-none">
         <div className="flex items-center h-full">
           <div className="flex items-center gap-1.5 px-3 h-full hover:bg-[#1E293B] transition-colors cursor-pointer text-[#E2E8F0]">
             <span className="w-2 h-2 rounded-full bg-[#10B981]" />
@@ -1576,7 +1576,7 @@ export default function RoomPage() {
               className="bg-transparent uppercase font-bold text-[#94A3B8] focus:outline-none cursor-pointer pl-2 pr-1 py-1"
             >
               {LANGUAGE_OPTIONS.map((lang: string) => (
-                <option key={lang} value={lang} className="bg-[#0F111A] text-[#E2E8F0]">{lang}</option>
+                <option key={lang} value={lang} className="bg-[#080420] text-[#E2E8F0]">{lang}</option>
               ))}
             </select>
           </div>

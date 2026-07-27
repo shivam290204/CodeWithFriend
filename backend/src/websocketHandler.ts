@@ -8,6 +8,7 @@ import { JWT_SECRET } from './config/env';
 // In-memory state for rooms
 const docs: Map<string, Y.Doc> = new Map();
 const roomClients: Map<string, Set<any>> = new Map();
+const saveTimers: Map<string, NodeJS.Timeout> = new Map();
 
 export const handleWebSocketConnection = async (ws: WebSocket, request: any) => {
   const url = new URL(request.url || '', `http://${request.headers.host}`);
@@ -49,7 +50,15 @@ export const handleWebSocketConnection = async (ws: WebSocket, request: any) => 
 
   // Initialize room state if not exists
   if (!docs.has(roomCode)) {
-    docs.set(roomCode, new Y.Doc());
+    const doc = new Y.Doc();
+    if (room.yjsState) {
+      try {
+        Y.applyUpdate(doc, new Uint8Array(room.yjsState));
+      } catch (e) {
+        console.error('Failed to parse yjsState from DB:', e);
+      }
+    }
+    docs.set(roomCode, doc);
     roomClients.set(roomCode, new Set());
   }
 
@@ -76,6 +85,24 @@ export const handleWebSocketConnection = async (ws: WebSocket, request: any) => 
         Y.applyUpdate(doc, update);
         // broadcast to other clients in room
         broadcast(roomCode, { type: 'yjs-update', payload: parsed.payload }, client);
+
+        // Debounce database save
+        if (saveTimers.has(roomCode)) {
+          clearTimeout(saveTimers.get(roomCode)!);
+        }
+        const timer = setTimeout(async () => {
+          try {
+            const stateVector = Y.encodeStateAsUpdate(doc);
+            await Room.updateOne(
+              { roomCode: roomCode.toUpperCase() },
+              { $set: { yjsState: Buffer.from(stateVector) } }
+            );
+          } catch (err) {
+            console.error('Failed to persist Yjs state for room:', roomCode, err);
+          }
+          saveTimers.delete(roomCode);
+        }, 2000);
+        saveTimers.set(roomCode, timer);
       } else if (parsed.type === 'presence') {
         broadcast(roomCode, { type: 'presence', payload: { ...parsed.payload, userId: client.user.id } }, client);
       } else if (parsed.type === 'chat-message') {

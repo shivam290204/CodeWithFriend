@@ -227,7 +227,7 @@ export default function Whiteboard({ yDoc, onClose }: WhiteboardProps) {
           <button
             onClick={() => setTool("pen")}
             className={`p-2 rounded-md transition-all ${
-              tool === "pen" ? "bg-primary text-zinc-950 shadow-sm" : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700/50"
+              tool === "pen" ? "bg-primary text-zinc-950 shadow-sm" : "text-white/60 hover:text-white/90 hover:bg-zinc-700/50"
             }`}
             title="Pen"
           >
@@ -236,7 +236,7 @@ export default function Whiteboard({ yDoc, onClose }: WhiteboardProps) {
           <button
             onClick={() => setTool("eraser")}
             className={`p-2 rounded-md transition-all ${
-              tool === "eraser" ? "bg-zinc-200 text-zinc-950 shadow-sm" : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700/50"
+              tool === "eraser" ? "bg-zinc-200 text-zinc-950 shadow-sm" : "text-white/60 hover:text-white/90 hover:bg-zinc-700/50"
             }`}
             title="Eraser (Draws over with background color)"
           >
@@ -272,7 +272,7 @@ export default function Whiteboard({ yDoc, onClose }: WhiteboardProps) {
                 key={s}
                 onClick={() => setSize(s)}
                 className={`w-6 h-6 flex items-center justify-center rounded transition-all ${
-                  size === s ? "bg-zinc-700 text-zinc-50" : "text-zinc-500 hover:text-zinc-300"
+                  size === s ? "bg-zinc-700 text-zinc-50" : "text-white/50 hover:text-white/80"
                 }`}
               >
                 <div className="bg-current rounded-full" style={{ width: s, height: s }} />

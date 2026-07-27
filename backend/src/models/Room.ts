@@ -10,6 +10,7 @@ const roomSchema = new mongoose.Schema(
       userId: { type: String, required: true }, // Using String to support both ObjectId and 'guest-...'
       role: { type: String, default: 'member' }
     }],
+    yjsState: { type: Buffer }
   },
   { timestamps: true }
 );
