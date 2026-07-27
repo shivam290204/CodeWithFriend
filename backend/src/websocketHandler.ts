@@ -68,6 +68,10 @@ export const handleWebSocketConnection = async (ws: WebSocket, request: any) => 
   const client = { ws, user, color: '#' + Math.floor(Math.random()*16777215).toString(16) };
   clients.add(client);
 
+  // Send the current document state to the newly connected client
+  const currentState = Y.encodeStateAsUpdate(doc);
+  ws.send(JSON.stringify({ type: 'yjs-update', payload: Buffer.from(currentState).toString('base64') }));
+
   // Broadcast user-joined
   broadcast(roomCode, { type: 'user-joined', payload: { user: client.user } });
 
