@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   ArrowRight, Terminal, Users, Zap, Lock,
   GitBranch, Code2, Plus, Hash, Moon, Sun,
-  Star, MessageSquare, Globe
+  Star, Globe
 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { toast } from 'sonner';
@@ -403,8 +403,7 @@ export default function Home() {
           className="border-t border-b"
           style={{ borderColor: "var(--border)" }}
         >
-          <div className="max-w-4xl mx-auto px-6 py-10 grid grid-cols-3 divide-x"
-            style={{ divideColor: "var(--border)" }}>
+          <div className="max-w-4xl mx-auto px-6 py-10 grid grid-cols-3 divide-x divide-[var(--border)]">
             {stats.map((s, i) => (
               <div
                 key={s.label}

@@ -8,12 +8,6 @@ import { useTheme } from "next-themes";
 
 type Point = [number, number, number];
 
-interface Stroke {
-  id: string;
-  points: Point[];
-  color: string;
-  size: number;
-}
 
 interface WhiteboardProps {
   yDoc: Y.Doc | null;
@@ -23,7 +17,7 @@ interface WhiteboardProps {
 const COLORS = ["#f87171", "#fb923c", "#facc15", "#4ade80", "#2dd4bf", "#60a5fa", "#c084fc", "#f472b6", "#e4e4e7"];
 const SIZES = [4, 8, 12, 16];
 
-export default function Whiteboard({ yDoc, onClose }: WhiteboardProps) {
+export default function Whiteboard({ yDoc }: WhiteboardProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
