@@ -1050,7 +1050,7 @@ export default function RoomPage() {
             </Link>
             <Link to="/" className="flex items-center gap-2 text-white font-bold text-lg hover:opacity-80 transition-opacity">
               <img src="/logo.png" alt="PeerPod" className="h-7 w-auto scale-125 origin-left object-contain" />
-              PeerPod
+              Room
             </Link>
           </div>
           <div className="hidden sm:flex items-center px-3 py-1 bg-[#1E293B] rounded-md text-xs font-semibold text-white">
