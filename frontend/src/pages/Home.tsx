@@ -122,14 +122,14 @@ export default function Home() {
       {/* ══════════════════════ NAVBAR ══════════════════════════════════ */}
       <header className="nav-blur h-14 sticky top-0 z-50 flex items-center justify-between px-6 lg:px-12">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2.5 group">
+        <Link to="/" className="flex items-center gap-3 group">
           <img
             src="/logo.png"
             alt="PeerPod"
-            className="h-7 w-auto object-contain transition-opacity group-hover:opacity-75"
+            className="h-8 w-auto object-contain transition-opacity group-hover:opacity-75"
           />
           <span
-            className="font-bold text-base tracking-tight"
+            className="font-bold text-lg tracking-tight"
             style={{ color: "var(--text-primary)" }}
           >
             PeerPod
