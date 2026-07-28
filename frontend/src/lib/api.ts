@@ -81,6 +81,12 @@ export function getApiErrorMessage(error: unknown, fallback = "Something went wr
 export async function fetchJson<T>(path: string, options: RequestInit = {}): Promise<T> {
   const url = path.startsWith("http") ? path : `${getApiBase()}${path.startsWith("/") ? path : `/${path}`}`;
   const headers = new Headers(options.headers || {});
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('codesync-token');
+    if (token && !headers.has('Authorization')) {
+      headers.set('Authorization', `Bearer ${token}`);
+    }
+  }
 
   if (!(options.body instanceof FormData) && options.body && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
@@ -128,10 +134,17 @@ export async function fetchJson<T>(path: string, options: RequestInit = {}): Pro
       try {
         const refreshRes = await fetch(`${getApiBase()}/api/auth/refresh`, {
           method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refreshToken: localStorage.getItem('codesync-refresh-token') || '' }),
           credentials: 'include',
         });
         if (refreshRes.ok) {
+          const refreshData = await refreshRes.json();
+          if (refreshData.accessToken) localStorage.setItem('codesync-token', refreshData.accessToken);
+          if (refreshData.refreshToken) localStorage.setItem('codesync-refresh-token', refreshData.refreshToken);
+          
           // Retry original request
+          headers.set('Authorization', `Bearer ${refreshData.accessToken}`);
           const retryRes = await fetch(url, {
             credentials: 'include',
             ...options,
@@ -174,12 +187,19 @@ export function persistAuthed(authed: boolean) {
     localStorage.setItem("codesync-authed", "true");
   } else {
     localStorage.removeItem("codesync-authed");
+    localStorage.removeItem("codesync-token");
+    localStorage.removeItem("codesync-refresh-token");
   }
 }
 
 export async function probeAuth() {
   try {
-    const response = await fetch(`${getApiBase()}/api/auth/me`, { credentials: "include" });
+    const headers = new Headers();
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('codesync-token');
+      if (token) headers.set('Authorization', `Bearer ${token}`);
+    }
+    const response = await fetch(`${getApiBase()}/api/auth/me`, { headers, credentials: "include" });
     if (response.ok) {
       const data = await response.json();
       return { isAuthed: true, user: data.user };

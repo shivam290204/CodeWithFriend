@@ -15,12 +15,14 @@ export default function Signup() {
     e.preventDefault();
     setLoading(true);
     try {
-      const data = await fetchJson<{user: any}>('/api/auth/signup', {
+      const data = await fetchJson<{user: any, accessToken?: string, refreshToken?: string}>('/api/auth/signup', {
         method: 'POST',
         body: JSON.stringify({ name, email, password }),
       });
       persistAuthed(true);
       persistName(data.user?.name);
+      if (data.accessToken) localStorage.setItem('codesync-token', data.accessToken);
+      if (data.refreshToken) localStorage.setItem('codesync-refresh-token', data.refreshToken);
       toast.success('Account created successfully');
       navigate('/');
     } catch (err) {

@@ -32,12 +32,14 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     try {
-      const data = await fetchJson<{user: any}>('/api/auth/login', {
+      const data = await fetchJson<{user: any, accessToken?: string, refreshToken?: string}>('/api/auth/login', {
         method: 'POST',
         body: JSON.stringify({ email, password }),
       });
       persistAuthed(true);
       persistName(data.user?.name);
+      if (data.accessToken) localStorage.setItem('codesync-token', data.accessToken);
+      if (data.refreshToken) localStorage.setItem('codesync-refresh-token', data.refreshToken);
       toast.success('Signed in successfully');
       navigate('/');
     } catch (err) {
