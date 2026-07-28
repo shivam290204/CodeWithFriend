@@ -269,6 +269,8 @@ export default function RoomPage() {
   const [voiceMuted, setVoiceMuted] = useState(false);
   const [exportMenuOpen, setExportMenuOpen] = useState(false);
   const [cursorPos, setCursorPos] = useState({ line: 1, col: 1 });
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [authUser, setAuthUser] = useState<any>(null);
 
   // BUGFIX: `language` used to sit in the socket-effect's dependency array below,
   // which meant every language change (yours or a peer's) tore down and recreated
@@ -278,6 +280,16 @@ export default function RoomPage() {
   useEffect(() => {
     languageRef.current = language;
   }, [language]);
+
+  useEffect(() => {
+    import("@/lib/api").then(({ probeAuth }) => {
+      probeAuth().then((res) => {
+        if (res.isAuthed && res.user) {
+          setAuthUser(res.user);
+        }
+      });
+    });
+  }, []);
 
   const showToast = useCallback((text: string) => {
     toast.success(text);
@@ -1091,9 +1103,55 @@ export default function RoomPage() {
           <button onClick={handleOpenSettings} title="Settings" className="text-[#64748B] hover:text-[#94A3B8] transition-colors relative">
             <Settings className="w-6 h-6" />
           </button>
-          <button title="User" className="text-[#64748B] hover:text-[#94A3B8] transition-colors">
-            <User className="w-6 h-6" />
-          </button>
+          <div className="relative">
+            <button onClick={() => setUserMenuOpen(!userMenuOpen)} title="User" className={`transition-colors flex items-center justify-center w-8 h-8 rounded ${userMenuOpen ? 'text-white' : 'text-[#64748B] hover:text-[#94A3B8]'}`}>
+              <User className="w-6 h-6" />
+            </button>
+            {userMenuOpen && (
+              <div className="absolute left-12 bottom-0 w-64 bg-[#0F172A] border border-[#1E293B] shadow-2xl rounded-lg overflow-hidden z-50 flex flex-col">
+                <div className="p-4 border-b border-[#1E293B]">
+                  {authUser ? (
+                    <>
+                      <div className="text-white font-bold mb-1 truncate">{authUser.name || currentUserName}</div>
+                      <div className="text-xs text-[#94A3B8] truncate">{authUser.email || "No email"}</div>
+                    </>
+                  ) : (
+                    <div className="text-white font-bold mb-1 truncate">{currentUserName}</div>
+                  )}
+                </div>
+                <div className="p-2 flex flex-col gap-1">
+                  {authUser ? (
+                    <button 
+                      onClick={() => {
+                        import("@/lib/api").then(m => {
+                          m.persistAuthed(false);
+                          if (typeof window !== "undefined") window.location.href = '/login';
+                        });
+                      }}
+                      className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-[#1E293B] rounded transition-colors font-medium"
+                    >
+                      Sign Out
+                    </button>
+                  ) : (
+                    <>
+                      <button 
+                        onClick={() => window.location.href = '/login'}
+                        className="w-full text-left px-3 py-2 text-sm text-[#E2E8F0] hover:bg-[#1E293B] rounded transition-colors font-medium"
+                      >
+                        Log In
+                      </button>
+                      <button 
+                        onClick={() => window.location.href = '/signup'}
+                        className="w-full text-left px-3 py-2 text-sm text-[#E2E8F0] hover:bg-[#1E293B] rounded transition-colors font-medium"
+                      >
+                        Sign Up
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Resizable Panels Container */}
