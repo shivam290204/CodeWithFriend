@@ -518,54 +518,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ══════════════════════ FEATURES ════════════════════════════════ */}
-        <section
-          className="border-t"
-          style={{ borderColor: "var(--border)" }}
-        >
-          <div className="max-w-5xl mx-auto px-6 py-24">
-            <div className="text-center mb-14">
-              <h2
-                className="text-3xl md:text-4xl font-bold mb-4"
-                style={{ color: "var(--text-primary)" }}
-              >
-                Everything you need
-              </h2>
-              <p className="text-base max-w-xl mx-auto" style={{ color: "var(--text-secondary)" }}>
-                Built from the ground up for collaborative development — no compromises.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {features.map((f, i) => (
-                <div
-                  key={f.title}
-                  className="feature-card animate-fade-in-up"
-                  style={{ animationDelay: `${i * 0.07}s` }}
-                >
-                  <div
-                    className="w-10 h-10 flex items-center justify-center rounded-md mb-4"
-                    style={{
-                      background: "var(--accent-muted)",
-                      color: "var(--accent-text)",
-                    }}
-                  >
-                    {f.icon}
-                  </div>
-                  <h3
-                    className="font-semibold text-base mb-2"
-                    style={{ color: "var(--text-primary)" }}
-                  >
-                    {f.title}
-                  </h3>
-                  <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-                    {f.desc}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
 
         {/* ══════════════════════ CTA BAND ════════════════════════════════ */}
         {!isAuthed && (
