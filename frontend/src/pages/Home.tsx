@@ -429,9 +429,9 @@ export default function Home() {
           <div className="code-window animate-float">
             {/* Window bar */}
             <div className="code-window-bar">
-              <div className="code-dot" style={{ background: "#ff5f57" }} />
-              <div className="code-dot" style={{ background: "#febc2e" }} />
-              <div className="code-dot" style={{ background: "#28c840" }} />
+              <div className="code-dot" style={{ background: "var(--border-strong)" }} />
+              <div className="code-dot" style={{ background: "var(--border-strong)" }} />
+              <div className="code-dot" style={{ background: "var(--border-strong)" }} />
               <span className="ml-3 text-xs font-mono" style={{ color: "var(--text-muted)" }}>
                 main.py
               </span>
@@ -461,42 +461,42 @@ export default function Home() {
               </div>
 
               <div>
-                <span style={{ color: "#a5b4fc" }}>def</span>{" "}
+                <span style={{ color: "var(--text-muted)" }}>def</span>{" "}
                 <span style={{ color: "var(--text-primary)" }}>fibonacci</span>
                 <span>(n: </span>
-                <span style={{ color: "#a5b4fc" }}>int</span>
+                <span style={{ color: "var(--text-muted)" }}>int</span>
                 <span>) -&gt; </span>
-                <span style={{ color: "#a5b4fc" }}>list</span>
+                <span style={{ color: "var(--text-muted)" }}>list</span>
                 <span>[</span>
-                <span style={{ color: "#a5b4fc" }}>int</span>
+                <span style={{ color: "var(--text-muted)" }}>int</span>
                 <span>]:</span>
               </div>
               <div className="pl-8">
                 <span style={{ color: "var(--text-muted)" }}>"""</span>
-                <span style={{ color: "#86efac" }}>Alice is typing here...</span>
+                <span style={{ color: "var(--text-secondary)" }}>Alice is typing here...</span>
                 <span
                   className="inline-block w-0.5 h-4 ml-0.5 -mb-1 cursor-blink"
-                  style={{ background: "#6366f1" }}
+                  style={{ background: "var(--text-primary)" }}
                 />
               </div>
               <div className="pl-8">
-                <span style={{ color: "#a5b4fc" }}>if</span>{" "}
+                <span style={{ color: "var(--text-muted)" }}>if</span>{" "}
                 <span>n &lt;= </span>
-                <span style={{ color: "#f9a8d4" }}>1</span>
+                <span style={{ color: "var(--text-secondary)" }}>1</span>
                 <span>:</span>
               </div>
               <div className="pl-16">
-                <span style={{ color: "#a5b4fc" }}>return</span>{" "}
+                <span style={{ color: "var(--text-muted)" }}>return</span>{" "}
                 <span>[</span>
-                <span style={{ color: "#f9a8d4" }}>0</span>
+                <span style={{ color: "var(--text-secondary)" }}>0</span>
                 <span>][:n]</span>
               </div>
               <div className="pl-8">
                 <span>seq </span>
                 <span style={{ color: "var(--text-secondary)" }}>= [</span>
-                <span style={{ color: "#f9a8d4" }}>0</span>
+                <span style={{ color: "var(--text-secondary)" }}>0</span>
                 <span>, </span>
-                <span style={{ color: "#f9a8d4" }}>1</span>
+                <span style={{ color: "var(--text-secondary)" }}>1</span>
                 <span>]</span>
               </div>
             </div>
@@ -572,7 +572,7 @@ export default function Home() {
             <div className="max-w-3xl mx-auto px-6 py-24 text-center">
               <div
                 className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1 rounded-full mb-6 border"
-                style={{ background: "var(--accent-muted)", borderColor: "var(--accent)", color: "var(--accent-text)" }}
+                style={{ background: "var(--bg-raised)", borderColor: "var(--border-strong)", color: "var(--text-primary)" }}
               >
                 <Globe className="w-3 h-3" />
                 Free forever for individuals

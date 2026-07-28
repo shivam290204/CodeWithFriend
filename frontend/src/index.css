@@ -148,17 +148,8 @@ input, button, textarea, select { font-family: inherit; }
 }
 .animate-float { animation: float 4s ease-in-out infinite; }
 
-@keyframes shimmer {
-  from { background-position: 200% center; }
-  to   { background-position: -200% center; }
-}
 .text-gradient {
-  background: linear-gradient(135deg, var(--grad-from), var(--grad-to), var(--grad-from));
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: shimmer 4s linear infinite;
+  color: var(--text-primary);
 }
 
 @keyframes slideUp {
@@ -168,21 +159,18 @@ input, button, textarea, select { font-family: inherit; }
 .animate-slide-up { animation: slideUp 0.22s ease-out both; }
 
 @keyframes glowPulse {
-  0%, 100% { box-shadow: 0 0 20px var(--accent-glow), 0 0 40px transparent; }
-  50%       { box-shadow: 0 0 30px var(--accent-glow), 0 0 60px var(--accent-glow); }
+  0%, 100% { box-shadow: 0 0 0px transparent; }
+  50%       { box-shadow: 0 0 0px transparent; }
 }
-.glow-pulse { animation: glowPulse 3s ease-in-out infinite; }
+.glow-pulse { }
 
 /* ─── Grid / hero backgrounds ────────────────────────────────────────── */
 .grid-bg {
-  background-image:
-    linear-gradient(to right, var(--border-subtle) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--border-subtle) 1px, transparent 1px);
-  background-size: 40px 40px;
+  display: none;
 }
 
 .hero-glow {
-  background: radial-gradient(ellipse 80% 50% at 50% -10%, var(--accent-glow) 0%, transparent 70%);
+  display: none;
 }
 
 /* ─── Card hover effects ─────────────────────────────────────────────── */
@@ -195,20 +183,11 @@ input, button, textarea, select { font-family: inherit; }
   padding: 28px;
   transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
 }
-.feature-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, var(--accent-muted) 0%, transparent 60%);
-  opacity: 0;
-  transition: opacity 0.3s;
-}
 .feature-card:hover {
-  border-color: var(--accent);
+  border-color: var(--border-strong);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md), 0 0 30px var(--accent-glow);
+  box-shadow: var(--shadow-md);
 }
-.feature-card:hover::before { opacity: 1; }
 
 /* ─── Glass effect ───────────────────────────────────────────────────── */
 .glass {
@@ -247,8 +226,8 @@ input, button, textarea, select { font-family: inherit; }
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: linear-gradient(135deg, var(--grad-from), var(--grad-to));
-  color: white;
+  background: var(--text-primary);
+  color: var(--bg-base);
   font-weight: 600;
   font-size: 14px;
   padding: 10px 24px;
@@ -256,12 +235,12 @@ input, button, textarea, select { font-family: inherit; }
   border: none;
   cursor: pointer;
   transition: opacity 0.2s, transform 0.1s, box-shadow 0.2s;
-  box-shadow: 0 4px 14px var(--accent-glow);
+  box-shadow: var(--shadow-sm);
 }
 .btn-primary:hover {
   opacity: 0.9;
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px var(--accent-glow);
+  box-shadow: var(--shadow-md);
 }
 .btn-primary:active { transform: translateY(0); }
 
