@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import {
-  ArrowRight, Terminal, Users, Zap, Lock,
-  GitBranch, Code2, Plus, Hash, Moon, Sun,
+  ArrowRight, Zap, Lock,
+  Plus, Hash, Moon, Sun,
   Globe
 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
