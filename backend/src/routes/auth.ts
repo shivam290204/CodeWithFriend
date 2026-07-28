@@ -36,13 +36,16 @@ const signupSchema = z.object({
 
 const setAuthCookies = (res: any, accessToken: string, refreshTokenRaw: string) => {
   const isProd = process.env.NODE_ENV === 'production';
-  res.cookie('accessToken', accessToken, { httpOnly: true, secure: isProd, sameSite: 'strict', maxAge: 15 * 60 * 1000 });
-  res.cookie('refreshToken', refreshTokenRaw, { httpOnly: true, secure: isProd, sameSite: 'strict', maxAge: 30 * 24 * 60 * 60 * 1000 });
+  const cookieOptions = { httpOnly: true, secure: isProd, sameSite: isProd ? 'none' : 'lax' as const };
+  res.cookie('accessToken', accessToken, { ...cookieOptions, maxAge: 15 * 60 * 1000 });
+  res.cookie('refreshToken', refreshTokenRaw, { ...cookieOptions, maxAge: 30 * 24 * 60 * 60 * 1000 });
 };
 
 const clearAuthCookies = (res: any) => {
-  res.clearCookie('accessToken');
-  res.clearCookie('refreshToken');
+  const isProd = process.env.NODE_ENV === 'production';
+  const cookieOptions = { httpOnly: true, secure: isProd, sameSite: isProd ? 'none' : 'lax' as const };
+  res.clearCookie('accessToken', cookieOptions);
+  res.clearCookie('refreshToken', cookieOptions);
 };
 
 router.post('/signup', authLimiter, async (req, res) => {
