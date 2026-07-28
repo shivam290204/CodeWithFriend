@@ -27,7 +27,10 @@ export default function Docs() {
               PeerPod is a collaborative, real-time code editor designed to connect developers across the globe. Built for high performance and minimal latency, it allows multiple users to edit, compile, and execute code simultaneously within the same session.
             </p>
             <p className="text-white/70 leading-relaxed text-lg">
-              Our mission is to eliminate the friction of technical interviews, pair programming, and remote debugging by providing a seamless, instantly accessible coding environment directly in the browser.
+              Our mission is to eliminate the friction of technical interviews, pair programming, and remote debugging by providing a seamless, instantly accessible coding environment directly in the browser. Whether you are a student learning to code, an open-source contributor seeking collaboration, or an engineering manager conducting a technical screening, PeerPod provides a frictionless workspace.
+            </p>
+            <p className="text-white/70 leading-relaxed text-lg">
+              We built this platform with a focus on simplicity, speed, and privacy. By enabling secure and private room generation, we ensure that your code remains yours, while still allowing you to invite friends or teammates at a moment's notice to squash bugs or prototype ideas together.
             </p>
           </section>
 
@@ -50,20 +53,6 @@ export default function Docs() {
                 <h3 className="text-lg font-medium mb-2">Minimalist Design</h3>
                 <p className="text-white/60 text-sm">A distraction-free, high-contrast monochrome interface designed strictly to keep your focus on the code.</p>
               </div>
-            </div>
-          </section>
-
-
-          <section className="space-y-6">
-            <h2 className="text-2xl font-semibold border-l-2 border-white/20 pl-4">Technical Stack</h2>
-            <div className="space-y-4 text-white/70">
-              <p>The platform is engineered using the MERN stack and modern technologies:</p>
-              <ul className="list-disc list-inside space-y-2 ml-4">
-                <li><strong>Database:</strong> MongoDB</li>
-                <li><strong>Backend:</strong> Express.js & Node.js</li>
-                <li><strong>Frontend:</strong> React.js (with Tailwind CSS)</li>
-                <li><strong>Real-time:</strong> Socket.IO</li>
-              </ul>
             </div>
           </section>
 
