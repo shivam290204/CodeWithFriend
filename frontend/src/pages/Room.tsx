@@ -11,9 +11,10 @@ import * as Y from "yjs";
 import { Awareness } from "y-protocols/awareness";
 import { MonacoBinding } from "y-monaco";
 import * as monaco from "monaco-editor";
-import { ArrowLeft, Users, MessageSquare, Code2, Play, Terminal, Square, X, Send, Check, Copy, Mic, MicOff, Palette, Type, Keyboard, FileInput, Download, PenTool, Folder, Search, Settings, Share, ChevronDown, FileCode, Sun, Bell, User, GitBranch, Bug, FilePlus, FolderPlus, RefreshCw, Minimize2 } from "lucide-react";
+import { ArrowLeft, Home, Users, MessageSquare, Code2, Play, Terminal, Square, X, Send, Check, Copy, Mic, MicOff, Palette, Type, Keyboard, FileInput, Download, PenTool, Folder, Search, Settings, Share, ChevronDown, FileCode, Sun, Bell, User, GitBranch, Bug, FilePlus, FolderPlus, RefreshCw, Minimize2 } from "lucide-react";
 import { toast } from "sonner";
 import { fetchJson, getApiErrorMessage, getWsBase, readStoredName } from "@/lib/api";
+import { VoiceChat } from "@/components/VoiceChat";
 
 import MonacoEditor from "@monaco-editor/react";
 
@@ -1045,7 +1046,7 @@ export default function RoomPage() {
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-4">
             <Link to="/" title="Back to Home" className="text-[#94A3B8] hover:text-white transition-colors bg-[#1E293B] hover:bg-[#334155] p-1.5 rounded-md flex items-center justify-center">
-              <ArrowLeft className="w-4 h-4" />
+              <Home className="w-4 h-4" />
             </Link>
             <Link to="/" className="flex items-center gap-2 text-white font-bold text-lg hover:opacity-80 transition-opacity">
               <img src="/logo.png" alt="PeerPod" className="h-7 w-auto scale-125 origin-left object-contain" />
@@ -1063,6 +1064,8 @@ export default function RoomPage() {
         </nav>
 
         <div className="flex items-center gap-4">
+          <VoiceChat roomCode={roomCode} />
+
           <button onClick={handleCopyCode} className="hidden sm:flex bg-[#BFDBFE] hover:bg-[#93C5FD] text-[#1E3A8A] font-semibold px-4 py-1.5 rounded text-sm transition-colors items-center gap-2">
             {copyingCode ? <Check className="w-4 h-4" /> : <Users className="w-4 h-4" />}
             {copyingCode ? "Copied" : "Invite"}
