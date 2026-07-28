@@ -356,8 +356,8 @@ router.get('/me', requireAuth, async (req: any, res: any) => {
 });
 
 router.get('/ws-token', async (req, res) => {
-  const token = req.cookies.accessToken;
-  if (!token) return res.status(401).json({ error: 'Unauthorized: No session cookie' });
+  const token = req.headers.authorization?.split(' ')[1] || req.cookies.accessToken;
+  if (!token) return res.status(401).json({ error: 'Unauthorized: No session token' });
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as any;
