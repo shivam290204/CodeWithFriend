@@ -371,3 +371,30 @@ input, button, textarea, select { font-family: inherit; }
 [data-theme="light"] .nav-blur {
   background: rgba(255, 255, 255, 0.8);
 }
+
+/* ─── LiveKit Overrides ────────────────────────────────────────────────── */
+.lk-device-menu {
+  background-color: var(--bg-surface) !important;
+  border: 1px solid var(--border-strong) !important;
+  border-radius: 8px !important;
+  box-shadow: var(--shadow-lg) !important;
+  padding: 8px !important;
+  z-index: 99999 !important;
+  min-width: 200px;
+}
+
+.lk-device-menu > li, .lk-device-menu-item {
+  color: var(--text-primary) !important;
+  padding: 8px 12px !important;
+  border-radius: 6px !important;
+  font-size: 14px;
+}
+
+.lk-device-menu > li:hover, .lk-device-menu-item:hover {
+  background-color: var(--bg-raised) !important;
+}
+
+.lk-control-bar {
+  display: flex;
+  gap: 8px;
+}
