@@ -235,7 +235,7 @@ export default function Home() {
 
                 {/* ── Create Room Card ─────────────────────────────────── */}
                 <div
-                  className="relative rounded-2xl border p-6 flex flex-col gap-4 text-left transition-all duration-300"
+                  className="relative rounded-md border p-6 flex flex-col gap-4 text-left transition-all duration-300"
                   style={{
                     background: "var(--bg-surface)",
                     borderColor: "var(--border-strong)",
@@ -254,7 +254,7 @@ export default function Home() {
                 >
                   {/* Icon */}
                   <div
-                    className="w-11 h-11 flex items-center justify-center rounded-xl"
+                    className="w-11 h-11 flex items-center justify-center rounded-md"
                     style={{ background: "var(--accent-muted)", color: "var(--accent-text)" }}
                   >
                     <Plus className="w-5 h-5" />
@@ -308,7 +308,7 @@ export default function Home() {
 
                 {/* ── Join Room Card ───────────────────────────────────── */}
                 <div
-                  className="relative rounded-2xl border p-6 flex flex-col gap-4 text-left transition-all duration-300"
+                  className="relative rounded-md border p-6 flex flex-col gap-4 text-left transition-all duration-300"
                   style={{
                     background: "var(--bg-surface)",
                     borderColor: "var(--border-strong)",
@@ -327,7 +327,7 @@ export default function Home() {
                 >
                   {/* Icon */}
                   <div
-                    className="w-11 h-11 flex items-center justify-center rounded-xl"
+                    className="w-11 h-11 flex items-center justify-center rounded-md"
                     style={{ background: "var(--accent-muted)", color: "var(--accent-text)" }}
                   >
                     <Hash className="w-5 h-5" />
@@ -544,7 +544,7 @@ export default function Home() {
                   style={{ animationDelay: `${i * 0.07}s` }}
                 >
                   <div
-                    className="w-10 h-10 flex items-center justify-center rounded-xl mb-4"
+                    className="w-10 h-10 flex items-center justify-center rounded-md mb-4"
                     style={{
                       background: "var(--accent-muted)",
                       color: "var(--accent-text)",
