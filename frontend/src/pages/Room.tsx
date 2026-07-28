@@ -1059,9 +1059,6 @@ export default function RoomPage() {
           </div>
         </div>
 
-        <nav className="hidden lg:flex gap-6 text-sm">
-          <Link to="/" className="text-[#94A3B8] hover:text-white cursor-pointer py-4 transition-colors">Home</Link>
-        </nav>
 
         <div className="flex items-center gap-4">
           <VoiceChat roomCode={roomCode} />
