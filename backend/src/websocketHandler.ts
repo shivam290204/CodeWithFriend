@@ -69,8 +69,8 @@ export const handleWebSocketConnection = async (ws: WebSocket, request: any) => 
   clients.add(client);
 
   const messageTimestamps: number[] = [];
-  const MAX_MESSAGES_PER_SEC = 100; // Increased to 100/sec to avoid false positives on large pastes
-  const STRIKE_LIMIT = 3;
+  const MAX_MESSAGES_PER_SEC = 500; // Increased to 500/sec to prevent false positives from Monaco cursor movements
+  const STRIKE_LIMIT = 5;
   let strikes = 0;
   let lastStrikeTime = 0;
 
@@ -137,16 +137,17 @@ export const handleWebSocketConnection = async (ws: WebSocket, request: any) => 
       } else if (parsed.type === 'presence') {
         broadcast(roomCode, { type: 'presence', payload: { ...parsed.payload, userId: client.user.id } }, client);
       } else if (parsed.type === 'chat-message') {
+        const textPayload = typeof parsed.payload === 'string' ? parsed.payload : parsed.payload?.text || '';
         // Save to DB
         const chatMsg = new Message({
           roomId: room._id,
           senderId: client.user.id.startsWith('guest') ? null : client.user.id,
-          text: parsed.payload.text,
+          text: textPayload,
           senderName: client.user.name,
         });
         await chatMsg.save();
         
-        broadcast(roomCode, { type: 'chat-message', payload: chatMsg });
+        broadcast(roomCode, { type: 'chat-message', payload: { text: textPayload, author: client.user.name } });
       } else if (parsed.type === 'room-updated') {
         if (room.hostId && room.hostId.toString() === client.user.id) {
           broadcast(roomCode, { type: 'room-updated', payload: parsed.payload });
