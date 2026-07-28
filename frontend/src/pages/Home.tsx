@@ -209,17 +209,6 @@ export default function Home() {
           <div className="absolute inset-0 grid-bg opacity-40 pointer-events-none" />
 
           <div className="relative max-w-5xl mx-auto px-6 pt-28 pb-20 text-center">
-            {/* Badge */}
-            <div className="animate-fade-in-up inline-flex items-center gap-2 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-8 border"
-              style={{
-                background: "var(--accent-muted)",
-                borderColor: "var(--accent)",
-                color: "var(--accent-text)",
-              }}
-            >
-              <Star className="w-3 h-3" />
-              Open source · Built for developers
-            </div>
 
             {/* Headline */}
             <h1 className="animate-fade-in-up-delay-1 text-5xl md:text-7xl font-black tracking-tight mb-6 leading-[1.05]">
