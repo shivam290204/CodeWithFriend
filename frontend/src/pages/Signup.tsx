@@ -149,7 +149,7 @@ export default function Signup() {
               <label className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>Name</label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: 'var(--text-muted)' }} />
-                <input type="text" className={inputClass} style={inputStyle} placeholder="Jane Doe" value={name} onChange={e => setName(e.target.value)} required onFocus={onFocus} onBlur={onBlur} />
+                <input type="text" className={inputClass} style={inputStyle} placeholder="Enter Your Name" value={name} onChange={e => setName(e.target.value)} required onFocus={onFocus} onBlur={onBlur} />
               </div>
             </div>
 
@@ -157,7 +157,7 @@ export default function Signup() {
               <label className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>Email</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: 'var(--text-muted)' }} />
-                <input type="email" className={inputClass} style={inputStyle} placeholder="you@company.com" value={email} onChange={e => setEmail(e.target.value)} required onFocus={onFocus} onBlur={onBlur} />
+                <input type="email" className={inputClass} style={inputStyle} placeholder="Enter Your Email" value={email} onChange={e => setEmail(e.target.value)} required onFocus={onFocus} onBlur={onBlur} />
               </div>
             </div>
 
