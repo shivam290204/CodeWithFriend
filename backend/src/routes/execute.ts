@@ -17,11 +17,11 @@ const executeLimiter = rateLimit({
 router.use(requireAuth);
 router.use(executeLimiter);
 
-const PISTON_RUNTIMES: Record<string, { language: string, version: string }> = {
-  javascript: { language: 'javascript', version: '18.15.0' },
-  typescript: { language: 'typescript', version: '5.0.3' },
-  python: { language: 'python', version: '3.10.0' },
-  cpp: { language: 'c++', version: '10.2.0' }
+const JUDGE0_RUNTIMES: Record<string, number> = {
+  javascript: 93, // Node.js 18.15.0
+  typescript: 94, // TypeScript 5.0.3
+  python: 109, // Python 3.13.2
+  cpp: 54 // C++ GCC 9.2.0
 };
 
 const executeSchema = z.object({
@@ -38,32 +38,32 @@ router.post('/', async (req, res) => {
     }
     const { language, code, stdin } = parseResult.data;
 
-    const runtime = PISTON_RUNTIMES[language];
-    if (!runtime) {
+    const languageId = JUDGE0_RUNTIMES[language];
+    if (!languageId) {
       return res.status(400).json({ error: `Language ${language} execution is not supported.` });
     }
 
     try {
-      const pistonUrl = process.env.PISTON_URL || 'https://emkc.org/api/v2/piston/execute';
-      const response = await axios.post(pistonUrl, {
-        language: runtime.language,
-        version: runtime.version,
-        files: [{ content: code }],
+      const response = await axios.post('https://ce.judge0.com/submissions?base64_encoded=false&wait=true', {
+        language_id: languageId,
+        source_code: code,
         stdin: stdin || ""
       });
 
       const data = response.data;
-      const run = data.run;
       
-      if (!run) {
+      if (!data) {
         return res.status(500).json({ error: 'Invalid response from execution server' });
       }
 
+      const isSuccess = data.status?.id === 3;
+      const errorMsg = data.stderr || data.compile_output;
+
       res.json({
-        status: run.code === 0 ? 'success' : 'error',
-        stdout: run.stdout,
-        stderr: run.stderr,
-        error: run.code !== 0 ? (run.stderr || run.stdout) : null
+        status: isSuccess ? 'success' : 'error',
+        stdout: data.stdout || '',
+        stderr: errorMsg || '',
+        error: !isSuccess ? errorMsg : null
       });
 
     } catch (apiError: any) {
