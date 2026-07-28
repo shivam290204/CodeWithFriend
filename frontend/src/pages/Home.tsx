@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   ArrowRight, Terminal, Users, Zap, Lock,
   GitBranch, Code2, Plus, Hash, Moon, Sun,
-  Star, Globe
+  Globe
 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { toast } from 'sonner';
