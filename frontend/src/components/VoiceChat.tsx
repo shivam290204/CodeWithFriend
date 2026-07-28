@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   LiveKitRoom,
   RoomAudioRenderer,
   VoiceAssistantControlBar,
-  useConnectionState,
 } from '@livekit/components-react';
 import '@livekit/components-styles';
 import { fetchJson } from '@/lib/api';
-import { Mic, PhoneOff, Phone, Loader2 } from 'lucide-react';
+import { Mic, PhoneOff, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export const VoiceChat = ({ roomCode }: { roomCode: string }) => {
@@ -18,7 +17,7 @@ export const VoiceChat = ({ roomCode }: { roomCode: string }) => {
     try {
       setConnecting(true);
       // Fetch token from our backend
-      const data = await fetchJson(`/api/voice/token?roomCode=${roomCode}`);
+      const data = await fetchJson(`/api/voice/token?roomCode=${roomCode}`) as { token?: string };
       if (data.token) {
         setToken(data.token);
       } else {

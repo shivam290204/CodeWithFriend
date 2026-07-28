@@ -12,6 +12,7 @@ dotenv.config();
 import authRoutes from './routes/auth';
 import roomRoutes from './routes/rooms';
 import executeRoutes from './routes/execute';
+import voiceRoutes from './routes/voice';
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -31,6 +32,7 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/rooms', roomRoutes);
 app.use('/api/execute', executeRoutes);
+app.use('/api/voice', voiceRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
