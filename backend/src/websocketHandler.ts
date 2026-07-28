@@ -68,6 +68,12 @@ export const handleWebSocketConnection = async (ws: WebSocket, request: any) => 
   const client = { ws, user, color: '#' + Math.floor(Math.random()*16777215).toString(16) };
   clients.add(client);
 
+  const messageTimestamps: number[] = [];
+  const MAX_MESSAGES_PER_SEC = 100; // Increased to 100/sec to avoid false positives on large pastes
+  const STRIKE_LIMIT = 3;
+  let strikes = 0;
+  let lastStrikeTime = 0;
+
   // Send the current document state to the newly connected client
   const currentState = Y.encodeStateAsUpdate(doc);
   ws.send(JSON.stringify({ type: 'yjs-update', payload: Buffer.from(currentState).toString('base64') }));
@@ -77,6 +83,27 @@ export const handleWebSocketConnection = async (ws: WebSocket, request: any) => 
 
   ws.on('message', async (message: Buffer) => {
     try {
+      const now = Date.now();
+      messageTimestamps.push(now);
+      
+      if (messageTimestamps.length > MAX_MESSAGES_PER_SEC) {
+        const oldest = messageTimestamps.shift()!;
+        if (now - oldest < 1000) {
+          if (now - lastStrikeTime > 2000) {
+            strikes++;
+            lastStrikeTime = now;
+            console.warn(`WS Rate limit strike ${strikes} for user ${user.id}`);
+          }
+          if (strikes >= STRIKE_LIMIT) {
+            console.warn(`Disconnecting user ${user.id} for rate limiting`);
+            ws.close(1008, 'Rate limit exceeded');
+            return;
+          }
+        } else if (now - oldest > 5000) {
+          strikes = Math.max(0, strikes - 1); // decay strikes
+        }
+      }
+
       // Check if it's a JSON string or binary (Yjs update)
       // The frontend sends `yjs-update` or JSON for other events.
       // Wait, in CodeSync, Yjs updates are usually sent as binary, or base64 JSON?

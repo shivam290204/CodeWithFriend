@@ -117,9 +117,7 @@ export default function Dashboard() {
                 <User className="w-4 h-4 text-white/60 hover:text-white" />
               </div>
             </div>
-            <button onClick={() => handleCreateFolder()} className="hidden sm:block bg-white/10 hover:bg-white/20 border border-[#1E293B] text-white font-semibold px-5 py-2.5 rounded-lg transition-all duration-300 text-sm backdrop-blur-md">
-              Create Folder
-            </button>
+            
           </div>
         </header>
 

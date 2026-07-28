@@ -3,14 +3,26 @@ import { Room } from '../models/Room';
 import { Snapshot } from '../models/Snapshot';
 import { Message } from '../models/Message';
 import { requireAuth } from '../middleware/auth';
+import { z } from 'zod';
 
 const router = Router();
 
 router.use(requireAuth);
 
+const createRoomSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  language: z.string().optional(),
+});
+
 router.post('/', async (req: any, res: any) => {
   try {
-    const { name, language } = req.body;
+    const parseResult = createRoomSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      const msg = parseResult.error.errors.map(e => e.message).join(', ');
+      return res.status(400).json({ error: msg });
+    }
+    const { name, language } = parseResult.data;
+    
     const roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
     const userId = req.user.id;
     
@@ -29,9 +41,19 @@ router.post('/', async (req: any, res: any) => {
   }
 });
 
+const joinRoomSchema = z.object({
+  roomCode: z.string().min(1, 'Room code is required'),
+});
+
 router.post('/join', async (req: any, res: any) => {
   try {
-    const { roomCode } = req.body;
+    const parseResult = joinRoomSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      const msg = parseResult.error.errors.map(e => e.message).join(', ');
+      return res.status(400).json({ error: msg });
+    }
+    const { roomCode } = parseResult.data;
+    
     const room = await Room.findOne({ roomCode: roomCode.toUpperCase() });
     if (!room) return res.status(404).json({ error: 'Room not found' });
     

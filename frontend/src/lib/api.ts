@@ -2,10 +2,16 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const WS_URL = import.meta.env.VITE_WS_URL || API_URL;
 
 export function getApiBase() {
+  if (typeof window !== "undefined" && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
+    return `http://${window.location.hostname}:5000`;
+  }
   return API_URL.replace(/\/$/, "");
 }
 
 export function getWsBase() {
+  if (typeof window !== "undefined" && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
+    return `ws://${window.location.hostname}:5000`;
+  }
   return WS_URL.replace(/\/$/, "").replace(/^http:/, "ws:").replace(/^https:/, "wss:");
 }
 

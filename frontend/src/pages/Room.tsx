@@ -261,7 +261,7 @@ export default function RoomPage() {
   // nothing. Removed the dead "App Theme" control entirely (see render below) rather
   // than keep a UI element that lies about doing something. Editor theme below is real.
   const [editorTheme, setEditorTheme] = useState("codesync-dark");
-  const [editorFontSize, setEditorFontSize] = useState(14);
+  const [editorFontSize, setEditorFontSize] = useState(16);
   const [editorKeybinding, setEditorKeybinding] = useState("default");
   const [stdinText, setStdinText] = useState("");
   const [showStdin, setShowStdin] = useState(false);
@@ -1048,8 +1048,6 @@ export default function RoomPage() {
 
         <nav className="hidden lg:flex gap-6 text-sm">
           <Link to="/dashboard" className="text-[#94A3B8] hover:text-white cursor-pointer py-4 transition-colors">Dashboard</Link>
-          <span className="text-[#94A3B8] hover:text-white cursor-pointer py-4 transition-colors">Marketplace</span>
-          <span className="text-[#94A3B8] hover:text-white cursor-pointer py-4 transition-colors">Documentation</span>
         </nav>
 
         <div className="flex items-center gap-4">
@@ -1237,7 +1235,7 @@ export default function RoomPage() {
               className="flex flex-col bg-[#0c0630] relative"
             >
               {/* Editor Tabs & Toolbar */}
-              <div className="h-10 bg-[#080420] flex items-center justify-between shrink-0 overflow-hidden pr-2">
+              <div className="h-10 bg-[#080420] border-b border-[#1E293B] flex items-center justify-between shrink-0 overflow-hidden pr-2">
                 <div className="flex h-full overflow-x-auto scrollbar-hide">
                   {openFiles.map(fileId => {
                     const isWhiteboard = fileId === "virtual-whiteboard";

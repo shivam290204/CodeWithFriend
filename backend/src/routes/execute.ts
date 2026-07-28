@@ -1,10 +1,8 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { requireAuth } from '../middleware/auth';
-import { spawn } from 'child_process';
-import { writeFileSync, unlinkSync, existsSync } from 'fs';
-import { join } from 'path';
-import { tmpdir } from 'os';
+import axios from 'axios';
+import { z } from 'zod';
 
 const router = Router();
 
@@ -19,78 +17,59 @@ const executeLimiter = rateLimit({
 router.use(requireAuth);
 router.use(executeLimiter);
 
+const PISTON_RUNTIMES: Record<string, { language: string, version: string }> = {
+  javascript: { language: 'javascript', version: '18.15.0' },
+  typescript: { language: 'typescript', version: '5.0.3' },
+  python: { language: 'python', version: '3.10.0' },
+  cpp: { language: 'c++', version: '10.2.0' }
+};
+
+const executeSchema = z.object({
+  language: z.string(),
+  code: z.string().min(1, 'No code provided'),
+  stdin: z.string().optional(),
+});
+
 router.post('/', async (req, res) => {
   try {
-    const { language, code, stdin } = req.body;
-    
-    if (!code) {
-      return res.status(400).json({ error: 'No code provided' });
+    const parseResult = executeSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({ error: parseResult.error.message });
+    }
+    const { language, code, stdin } = parseResult.data;
+
+    const runtime = PISTON_RUNTIMES[language];
+    if (!runtime) {
+      return res.status(400).json({ error: `Language ${language} execution is not supported.` });
     }
 
-    const fileId = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
-    const tempDir = tmpdir();
-    let filename = '';
-    let cmd = '';
-    let args: string[] = [];
-
-    if (language === 'javascript') {
-      filename = join(tempDir, `${fileId}.js`);
-      cmd = 'node';
-      args = [filename];
-    } else if (language === 'typescript') {
-      filename = join(tempDir, `${fileId}.ts`);
-      cmd = 'npx';
-      args = ['tsx', filename];
-    } else if (language === 'python') {
-      filename = join(tempDir, `${fileId}.py`);
-      cmd = 'python';
-      args = [filename];
-    } else {
-      return res.status(400).json({ error: `Language ${language} execution is not supported locally.` });
-    }
-
-    writeFileSync(filename, code);
-
-    const child = spawn(cmd, args);
-
-    let stdout = '';
-    let stderr = '';
-
-    child.stdout.on('data', (data) => {
-      stdout += data.toString();
-    });
-
-    child.stderr.on('data', (data) => {
-      stderr += data.toString();
-    });
-
-    if (stdin) {
-      child.stdin.write(stdin);
-      child.stdin.end();
-    }
-
-    const timeout = setTimeout(() => {
-      child.kill();
-      stderr += '\nExecution timed out (5s limit).';
-    }, 5000);
-
-    child.on('close', (codeStatus) => {
-      clearTimeout(timeout);
-      try { if (existsSync(filename)) unlinkSync(filename); } catch (e) {}
-      
-      res.json({
-        status: codeStatus === 0 ? 'success' : 'error',
-        stdout,
-        stderr,
-        error: codeStatus !== 0 ? stderr : null
+    try {
+      const pistonUrl = process.env.PISTON_URL || 'https://emkc.org/api/v2/piston/execute';
+      const response = await axios.post(pistonUrl, {
+        language: runtime.language,
+        version: runtime.version,
+        files: [{ content: code }],
+        stdin: stdin || ""
       });
-    });
 
-    child.on('error', (err) => {
-      clearTimeout(timeout);
-      try { if (existsSync(filename)) unlinkSync(filename); } catch (e) {}
-      res.status(500).json({ error: `Failed to start process: ${err.message}` });
-    });
+      const data = response.data;
+      const run = data.run;
+      
+      if (!run) {
+        return res.status(500).json({ error: 'Invalid response from execution server' });
+      }
+
+      res.json({
+        status: run.code === 0 ? 'success' : 'error',
+        stdout: run.stdout,
+        stderr: run.stderr,
+        error: run.code !== 0 ? (run.stderr || run.stdout) : null
+      });
+
+    } catch (apiError: any) {
+      const msg = apiError.response?.data?.message || apiError.message;
+      return res.status(500).json({ error: `Execution failed on remote server: ${msg}` });
+    }
 
   } catch (error) {
     res.status(500).json({ error: 'Failed to execute code' });

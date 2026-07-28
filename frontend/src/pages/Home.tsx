@@ -46,10 +46,7 @@ export default function Home() {
         
         {/* Hero Section */}
         <section className="w-full max-w-5xl mx-auto px-6 py-28 flex flex-col items-center text-center animate-fade-in">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-[#1E293B] text-xs font-medium text-white mb-8 backdrop-blur-md shadow-[0_0_15px_rgba(99,102,241,0.15)]">
-            <span className="w-2 h-2 rounded-full bg-white/10 animate-pulse" />
-            CodeFlow v2.0 is now live
-          </div>
+          
           <h1 className="text-5xl md:text-7xl font-black text-white mb-8 tracking-tighter leading-tight drop-shadow-sm">
             Code in the Flow
           </h1>
