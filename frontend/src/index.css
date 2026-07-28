@@ -292,11 +292,11 @@ input, button, textarea, select { font-family: inherit; }
 
 /* ─── Input styles ───────────────────────────────────────────────────── */
 .input-field {
-  background: var(--bg-surface);
-  border: 1.5px solid var(--border-strong);
+  background: var(--bg-base);
+  border: 1px solid var(--border-strong);
   color: var(--text-primary);
   border-radius: 6px;
-  padding: 5px 12px;
+  padding: 8px 12px;
   font-size: 14px;
   font-weight: 500;
   outline: none;

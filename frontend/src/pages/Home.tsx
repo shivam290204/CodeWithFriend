@@ -223,14 +223,14 @@ export default function Home() {
                 >
                   {/* Icon */}
                   <div
-                    className="w-11 h-11 flex items-center justify-center rounded-md"
-                    style={{ background: "var(--accent-muted)", color: "var(--accent-text)" }}
+                    className="w-10 h-10 flex items-center justify-center rounded-full border mb-1"
+                    style={{ background: "var(--bg-base)", borderColor: "var(--border-strong)" }}
                   >
-                    <Plus className="w-5 h-5" />
+                    <Plus className="w-5 h-5" style={{ color: "var(--text-primary)" }} />
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-base mb-1" style={{ color: "var(--text-primary)" }}>
+                    <h3 className="font-bold text-lg mb-1" style={{ color: "var(--text-primary)" }}>
                       Create a room
                     </h3>
                     <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
@@ -296,14 +296,14 @@ export default function Home() {
                 >
                   {/* Icon */}
                   <div
-                    className="w-11 h-11 flex items-center justify-center rounded-md"
-                    style={{ background: "var(--accent-muted)", color: "var(--accent-text)" }}
+                    className="w-10 h-10 flex items-center justify-center rounded-full border mb-1"
+                    style={{ background: "var(--bg-base)", borderColor: "var(--border-strong)" }}
                   >
-                    <Hash className="w-5 h-5" />
+                    <Hash className="w-5 h-5" style={{ color: "var(--text-primary)" }} />
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-base mb-1" style={{ color: "var(--text-primary)" }}>
+                    <h3 className="font-bold text-lg mb-1" style={{ color: "var(--text-primary)" }}>
                       Join a room
                     </h3>
                     <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
@@ -320,7 +320,7 @@ export default function Home() {
                         />
                         <input
                           className="input-field"
-                          style={{ paddingLeft: "2.5rem", letterSpacing: "0.12em", textTransform: "uppercase" }}
+                          style={{ paddingLeft: "2.25rem", letterSpacing: "0.12em", textTransform: "uppercase" }}
                           type="text"
                           placeholder="ROOM CODE"
                           value={joinCode}
