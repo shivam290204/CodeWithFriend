@@ -235,19 +235,21 @@ export default function Home() {
 
                 {/* ── Create Room Card ─────────────────────────────────── */}
                 <div
-                  className="relative rounded-2xl border p-6 flex flex-col gap-4 text-left transition-all duration-200"
+                  className="relative rounded-2xl border p-6 flex flex-col gap-4 text-left transition-all duration-300"
                   style={{
                     background: "var(--bg-surface)",
                     borderColor: "var(--border-strong)",
-                    boxShadow: "var(--shadow-md)",
+                    boxShadow: "var(--shadow-sm)",
                   }}
                   onMouseEnter={e => {
-                    (e.currentTarget as HTMLElement).style.borderColor = "var(--accent)";
-                    (e.currentTarget as HTMLElement).style.boxShadow = "var(--shadow-md), 0 0 24px var(--accent-glow)";
+                    (e.currentTarget as HTMLElement).style.borderColor = "var(--text-secondary)";
+                    (e.currentTarget as HTMLElement).style.boxShadow = "var(--shadow-lg)";
+                    (e.currentTarget as HTMLElement).style.transform = "translateY(-4px) scale(1.01)";
                   }}
                   onMouseLeave={e => {
                     (e.currentTarget as HTMLElement).style.borderColor = "var(--border-strong)";
-                    (e.currentTarget as HTMLElement).style.boxShadow = "var(--shadow-md)";
+                    (e.currentTarget as HTMLElement).style.boxShadow = "var(--shadow-sm)";
+                    (e.currentTarget as HTMLElement).style.transform = "translateY(0) scale(1)";
                   }}
                 >
                   {/* Icon */}
@@ -306,19 +308,21 @@ export default function Home() {
 
                 {/* ── Join Room Card ───────────────────────────────────── */}
                 <div
-                  className="relative rounded-2xl border p-6 flex flex-col gap-4 text-left transition-all duration-200"
+                  className="relative rounded-2xl border p-6 flex flex-col gap-4 text-left transition-all duration-300"
                   style={{
                     background: "var(--bg-surface)",
                     borderColor: "var(--border-strong)",
-                    boxShadow: "var(--shadow-md)",
+                    boxShadow: "var(--shadow-sm)",
                   }}
                   onMouseEnter={e => {
-                    (e.currentTarget as HTMLElement).style.borderColor = "var(--accent)";
-                    (e.currentTarget as HTMLElement).style.boxShadow = "var(--shadow-md), 0 0 24px var(--accent-glow)";
+                    (e.currentTarget as HTMLElement).style.borderColor = "var(--text-secondary)";
+                    (e.currentTarget as HTMLElement).style.boxShadow = "var(--shadow-lg)";
+                    (e.currentTarget as HTMLElement).style.transform = "translateY(-4px) scale(1.01)";
                   }}
                   onMouseLeave={e => {
                     (e.currentTarget as HTMLElement).style.borderColor = "var(--border-strong)";
-                    (e.currentTarget as HTMLElement).style.boxShadow = "var(--shadow-md)";
+                    (e.currentTarget as HTMLElement).style.boxShadow = "var(--shadow-sm)";
+                    (e.currentTarget as HTMLElement).style.transform = "translateY(0) scale(1)";
                   }}
                 >
                   {/* Icon */}
