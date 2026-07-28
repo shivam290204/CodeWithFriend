@@ -20,7 +20,9 @@ const mongoUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/codesync'
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
-app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:5174'], credentials: true }));
+
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173,http://localhost:5174').split(',').map(s => s.trim());
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json());
 import cookieParser from 'cookie-parser';
 app.use(cookieParser());

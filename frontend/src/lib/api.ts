@@ -110,6 +110,42 @@ export async function fetchJson<T>(path: string, options: RequestInit = {}): Pro
     const message = rawMsg
       ? `(HTTP ${response.status}) ${rawMsg}`
       : `Request failed with HTTP status ${response.status}`;
+
+    // Token refresh interceptor
+    if (response.status === 401 && rawMsg === 'TOKEN_EXPIRED') {
+      try {
+        const refreshRes = await fetch(`${getApiBase()}/api/auth/refresh`, {
+          method: 'POST',
+          credentials: 'include',
+        });
+        if (refreshRes.ok) {
+          // Retry original request
+          const retryRes = await fetch(url, {
+            credentials: 'include',
+            ...options,
+            headers,
+          });
+          const retryText = await retryRes.text();
+          let retryPayload: any = null;
+          if (retryText) {
+            try { retryPayload = JSON.parse(retryText); } catch { retryPayload = retryText; }
+          }
+          if (!retryRes.ok) throw new Error(`Retry failed: HTTP ${retryRes.status}`);
+          return retryPayload as T;
+        } else {
+          // Refresh failed, clear local state and redirect to login
+          persistAuthed(false);
+          persistName(null);
+          if (typeof window !== "undefined") {
+            window.location.href = '/login';
+          }
+          throw new Error('Session expired');
+        }
+      } catch (err) {
+        throw new Error('Session expired');
+      }
+    }
+
     throw new Error(message);
   }
 
@@ -133,18 +169,19 @@ export async function probeAuth() {
   try {
     const response = await fetch(`${getApiBase()}/api/auth/me`, { credentials: "include" });
     if (response.ok) {
-      return true;
+      const data = await response.json();
+      return { isAuthed: true, user: data.user };
     }
     if (response.status === 401 || response.status === 403) {
       if (typeof window !== "undefined") localStorage.removeItem("codesync-authed");
-      return false;
+      return { isAuthed: false, user: null };
     }
   } catch {
     // network error
   }
   
   if (typeof window !== "undefined") {
-    return localStorage.getItem("codesync-authed") === "true";
+    return { isAuthed: localStorage.getItem("codesync-authed") === "true", user: null };
   }
-  return false;
+  return { isAuthed: false, user: null };
 }

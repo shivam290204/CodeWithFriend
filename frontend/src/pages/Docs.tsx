@@ -15,7 +15,7 @@ export default function Docs() {
         
         <h1 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">Documentation</h1>
         <p className="text-xl text-white/60 mb-16 border-b border-[#1E293B] pb-8">
-          Everything you need to know about the CodeFlow project and its architecture.
+          Everything you need to know about the PeerPod project and its architecture.
         </p>
 
         {/* Content Sections */}
@@ -24,7 +24,7 @@ export default function Docs() {
           <section className="space-y-6">
             <h2 className="text-2xl font-semibold border-l-2 border-white/20 pl-4">About the Project</h2>
             <p className="text-white/70 leading-relaxed text-lg">
-              CodeFlow is a collaborative, real-time code editor designed to connect developers across the globe. Built for high performance and minimal latency, it allows multiple users to edit, compile, and execute code simultaneously within the same session.
+              PeerPod is a collaborative, real-time code editor designed to connect developers across the globe. Built for high performance and minimal latency, it allows multiple users to edit, compile, and execute code simultaneously within the same session.
             </p>
             <p className="text-white/70 leading-relaxed text-lg">
               Our mission is to eliminate the friction of technical interviews, pair programming, and remote debugging by providing a seamless, instantly accessible coding environment directly in the browser.
@@ -71,7 +71,7 @@ export default function Docs() {
         
         {/* Footer */}
         <div className="mt-24 pt-8 border-t border-[#1E293B] text-center text-white/40 text-sm">
-          CodeFlow Platform. All systems operational.
+          PeerPod Platform. All systems operational.
         </div>
       </div>
     </div>

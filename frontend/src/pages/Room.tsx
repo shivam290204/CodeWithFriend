@@ -911,10 +911,10 @@ export default function RoomPage() {
           <p className="text-xs uppercase tracking-[0.2em] text-red-400 font-bold">Room Error</p>
           <h1 className="mt-2 text-xl font-bold text-red-200">{error}</h1>
           <button
-            onClick={() => router("/dashboard")}
+            onClick={() => router("/")}
             className="mt-6 rounded-lg bg-primary px-6 py-2.5 text-xs font-bold uppercase tracking-widest text-on-primary transition hover:brightness-110"
           >
-            Back to Dashboard
+            Back to Home
           </button>
         </div>
       </div>
@@ -944,7 +944,7 @@ export default function RoomPage() {
               {joiningRoom ? "Connecting…" : "Join Room Now"}
             </button>
             <button
-              onClick={() => router("/dashboard")}
+              onClick={() => router("/")}
               className="rounded-lg border border-zinc-800 px-6 py-2.5 text-xs font-bold uppercase tracking-widest text-white/90 transition hover:bg-zinc-800"
             >
               Dashboard
@@ -1032,12 +1032,12 @@ export default function RoomPage() {
       <header className="h-14 border-b border-[#1E293B] bg-[#080420] flex justify-between items-center px-6 sticky top-0 z-10 shrink-0">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-4">
-            <Link to="/dashboard" title="Back to Dashboard" className="text-[#94A3B8] hover:text-white transition-colors bg-[#1E293B] hover:bg-[#334155] p-1.5 rounded-md flex items-center justify-center">
+            <Link to="/" title="Back to Home" className="text-[#94A3B8] hover:text-white transition-colors bg-[#1E293B] hover:bg-[#334155] p-1.5 rounded-md flex items-center justify-center">
               <ArrowLeft className="w-4 h-4" />
             </Link>
-            <Link to="/dashboard" className="flex items-center gap-2 text-white font-bold text-lg hover:opacity-80 transition-opacity">
-              <img src="/logo.png" alt="CodeFlow" className="h-7 w-auto scale-125 origin-left object-contain" />
-              CodeFlow
+            <Link to="/" className="flex items-center gap-2 text-white font-bold text-lg hover:opacity-80 transition-opacity">
+              <img src="/logo.png" alt="PeerPod" className="h-7 w-auto scale-125 origin-left object-contain" />
+              PeerPod
             </Link>
           </div>
           <div className="hidden sm:flex items-center px-3 py-1 bg-[#1E293B] rounded-md text-xs font-semibold text-white">
@@ -1047,7 +1047,7 @@ export default function RoomPage() {
         </div>
 
         <nav className="hidden lg:flex gap-6 text-sm">
-          <Link to="/dashboard" className="text-[#94A3B8] hover:text-white cursor-pointer py-4 transition-colors">Dashboard</Link>
+          <Link to="/" className="text-[#94A3B8] hover:text-white cursor-pointer py-4 transition-colors">Home</Link>
         </nav>
 
         <div className="flex items-center gap-4">
@@ -1056,8 +1056,7 @@ export default function RoomPage() {
             {copyingCode ? "Copied" : "Invite"}
           </button>
 
-          <Bell className="w-5 h-5 text-[#94A3B8] hover:text-white cursor-pointer transition-colors" />
-          <Settings className="w-5 h-5 text-[#94A3B8] hover:text-white cursor-pointer transition-colors" onClick={handleOpenSettings} />
+          <MessageSquare className="w-5 h-5 text-[#94A3B8] hover:text-white cursor-pointer transition-colors" onClick={() => setChatOpen(!chatOpen)} title="Toggle Chat" />
 
           <div
             className="w-7 h-7 rounded-full border border-[#334155] flex items-center justify-center overflow-hidden cursor-pointer text-[10px] font-bold text-white shadow-sm"
@@ -1550,7 +1549,7 @@ export default function RoomPage() {
         </div>
       </div>
 
-      {/* CodeFlow Style Status Bar */}
+      {/* PeerPod Style Status Bar */}
       <footer className="h-6 bg-[#0c0630] border-t border-[#1E293B] flex items-center justify-between text-[10px] font-mono text-[#64748B] shrink-0 select-none">
         <div className="flex items-center h-full">
           <div className="flex items-center gap-1.5 px-3 h-full hover:bg-[#1E293B] transition-colors cursor-pointer text-[#E2E8F0]">

@@ -1,226 +1,642 @@
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, Play, Terminal, Mic, Layout, Settings, Bell, FileCode2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import {
+  ArrowRight, Terminal, Users, Zap, Lock,
+  GitBranch, Code2, Plus, Hash, Moon, Sun,
+  Star, MessageSquare, Globe
+} from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { toast } from 'sonner';
 
-export default function Home() {
-  const navigate = useNavigate();
-  const [isAuthed, setIsAuthed] = useState<boolean>(false);
+/* ─── Hook: persisted theme ─────────────────────────────────────────── */
+function useTheme() {
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('cf-theme') as 'dark' | 'light') || 'dark';
+    }
+    return 'dark';
+  });
 
   useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('cf-theme', theme);
+  }, [theme]);
+
+  const toggle = useCallback(() => setTheme(t => t === 'dark' ? 'light' : 'dark'), []);
+  return { theme, toggle };
+}
+
+/* ─── Component ─────────────────────────────────────────────────────── */
+export default function Home() {
+  const navigate = useNavigate();
+  const { theme, toggle: toggleTheme } = useTheme();
+  const [isAuthed, setIsAuthed] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(true);
+  const [joinCode, setJoinCode] = useState('');
+  const [folderName, setFolderName] = useState('');
+  const [creating, setCreating] = useState(false);
+  const [joining, setJoining] = useState(false);
+
+  /* ── Auth probe ─────────────────────────────────────────────────── */
+  useEffect(() => {
     import('@/lib/api').then(({ probeAuth }) => {
-      probeAuth().then(setIsAuthed);
+      probeAuth().then(res => {
+        setIsAuthed(res.isAuthed);
+        if (res.isAuthed && res.user && res.user.emailVerified === false) {
+          setEmailVerified(false);
+        }
+      });
     });
   }, []);
 
-  return (
-    <div className="min-h-screen bg-[#080420] text-white/90 font-sans selection:bg-white/10/30 overflow-x-hidden relative">
-      
-      {/* Ambient Background Glows (Removed) */}
+  /* ── Handlers ────────────────────────────────────────────────────── */
+  const handleJoin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!joinCode.trim()) return;
+    setJoining(true);
+    navigate(`/room/${joinCode.trim().toUpperCase()}`);
+  };
 
-      {/* Navbar */}
-      <header className="h-20 border-b border-[#1E293B] bg-[#080420]/50 backdrop-blur-xl sticky top-0 z-50 flex items-center justify-between px-6 lg:px-12 transition-all duration-300">
-        <div className="flex items-center gap-3 cursor-pointer group">
-          <img src="/logo.png" alt="CodeFlow Logo" className="h-9 w-auto scale-125 origin-left object-contain group-hover:scale-[1.3] transition-transform duration-300 drop-shadow-[0_0_15px_rgba(99,102,241,0.5)]" />
-          <span className="text-white font-bold text-2xl tracking-tight">CodeFlow</span>
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const finalName = folderName.trim() || 'My Project';
+    setCreating(true);
+    try {
+      const data = await import('@/lib/api').then(m =>
+        m.fetchJson<{ roomCode: string }>('/api/rooms', {
+          method: 'POST',
+          body: JSON.stringify({ name: finalName, language: 'javascript' }),
+        })
+      );
+      toast.success(`Room created — ${data.roomCode}`);
+      navigate(`/room/${data.roomCode}`);
+    } catch (err: any) {
+      if (err.message?.includes('401')) {
+        toast.error('Session expired. Please sign in again.');
+        navigate('/login');
+      } else {
+        import('@/lib/api').then(m =>
+          toast.error(m.getApiErrorMessage(err, 'Failed to create room'))
+        );
+      }
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    await import('@/lib/api').then(m =>
+      m.fetchJson('/api/auth/logout', { method: 'POST' }).catch(() => {})
+    );
+    localStorage.removeItem('codesync-authed');
+    localStorage.removeItem('codesync-name');
+    setIsAuthed(false);
+    toast.success('Signed out');
+  };
+
+  /* ── Data ──────────────────────────────────────────────────────────── */
+  const features = [
+    {
+      icon: <Users className="w-5 h-5" />,
+      title: "Multiplayer editing",
+      desc: "See every keystroke in real-time with named cursors and presence indicators.",
+    },
+    {
+      icon: <Terminal className="w-5 h-5" />,
+      title: "Sandboxed execution",
+      desc: "Run Python, JavaScript, TypeScript and C++ in isolated containers instantly.",
+    },
+    {
+      icon: <Lock className="w-5 h-5" />,
+      title: "Access-controlled rooms",
+      desc: "Share a 6-character code to invite collaborators. Nothing is public by default.",
+    },
+    {
+      icon: <GitBranch className="w-5 h-5" />,
+      title: "Multi-file projects",
+      desc: "Organise your work into files and folders with independent editor tabs.",
+    },
+    {
+      icon: <Code2 className="w-5 h-5" />,
+      title: "Monaco editor",
+      desc: "Powered by the same engine as VS Code — full autocomplete and keybindings.",
+    },
+    {
+      icon: <Zap className="w-5 h-5" />,
+      title: "Zero setup",
+      desc: "No downloads or installs. Create a room and share the code in seconds.",
+    },
+  ];
+
+  const stats = [
+    { value: "50ms", label: "Avg. sync latency" },
+    { value: "10+", label: "Languages supported" },
+    { value: "∞", label: "Free rooms" },
+  ];
+
+  /* ── Render ───────────────────────────────────────────────────────── */
+  return (
+    <div
+      className="min-h-screen font-sans overflow-x-hidden"
+      style={{ background: "var(--bg-base)", color: "var(--text-primary)" }}
+    >
+      {/* ── Email verification banner ───────────────────────────────── */}
+      {isAuthed && !emailVerified && (
+        <div
+          className="flex items-center justify-center gap-3 px-6 py-2.5 text-sm font-medium"
+          style={{ background: "var(--accent)", color: "#fff" }}
+        >
+          <Zap className="w-3.5 h-3.5 shrink-0" />
+          Please verify your email — check your inbox for the link.
         </div>
-        
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 hidden sm:flex">
-            <div className="p-2 rounded-lg border border-[#1E293B] bg-white/[0.02] hover:bg-white/[0.05] cursor-pointer transition-all">
-              <Bell className="w-4 h-4 text-white/60 hover:text-white" />
+      )}
+
+      {/* ══════════════════════ NAVBAR ══════════════════════════════════ */}
+      <header className="nav-blur h-14 sticky top-0 z-50 flex items-center justify-between px-6 lg:px-12">
+        {/* Logo */}
+        <Link to="/" className="flex items-center gap-2.5 group">
+          <img
+            src="/logo.png"
+            alt="PeerPod"
+            className="h-7 w-auto object-contain transition-opacity group-hover:opacity-75"
+          />
+          <span
+            className="font-bold text-base tracking-tight"
+            style={{ color: "var(--text-primary)" }}
+          >
+            PeerPod
+          </span>
+        </Link>
+
+        {/* Nav right */}
+        <nav className="flex items-center gap-1">
+          <Link to="/docs" className="btn-ghost">Docs</Link>
+
+          {/* Theme toggle */}
+          <button
+            onClick={toggleTheme}
+            className="theme-toggle ml-1"
+            aria-label="Toggle theme"
+            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            <div className="theme-toggle-thumb">
+              {theme === 'dark'
+                ? <Moon className="w-2.5 h-2.5" style={{ color: '#fff' }} />
+                : <Sun className="w-2.5 h-2.5" style={{ color: '#fff' }} />
+              }
             </div>
-            <div className="p-2 rounded-lg border border-[#1E293B] bg-white/[0.02] hover:bg-white/[0.05] cursor-pointer transition-all">
-              <Settings className="w-4 h-4 text-white/60 hover:text-white" />
-            </div>
-          </div>
-          <Link to="/docs">
-            <button className="bg-white/10 hover:bg-white/20 border border-[#1E293B] text-white font-semibold px-5 py-2.5 rounded-lg transition-all duration-300 text-sm backdrop-blur-md">
-              Documentation
+          </button>
+
+          {isAuthed ? (
+            <button onClick={handleSignOut} className="btn-ghost ml-1">
+              Sign out
             </button>
-          </Link>
-        </div>
+          ) : (
+            <>
+              <Link to="/login" className="btn-ghost">Sign in</Link>
+              <Link to="/signup">
+                <button className="btn-primary ml-1">Get started</button>
+              </Link>
+            </>
+          )}
+        </nav>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center relative z-10">
-        
-        {/* Hero Section */}
-        <section className="w-full max-w-5xl mx-auto px-6 py-28 flex flex-col items-center text-center animate-fade-in">
-          
-          <h1 className="text-5xl md:text-7xl font-black text-white mb-8 tracking-tighter leading-tight drop-shadow-sm">
-            Code in the Flow
-          </h1>
-          
-          <p className="text-white/60 text-lg md:text-xl max-w-2xl mx-auto mb-12 leading-relaxed font-light">
-            The ultimate platform for developers to collaborate on architecture, write code, and run terminals in real-time. Zero latency, infinite creativity.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row items-center gap-6">
-            <Link to={isAuthed ? "/dashboard" : "/signup"}>
-              <button className="group bg-white/5 border border-[#1E293B] hover:bg-white/10 text-white font-semibold px-8 py-4 rounded-full flex items-center gap-3 transition-all duration-300 backdrop-blur-md hover:-translate-y-1">
-                {isAuthed ? "Go to Dashboard" : "Get Started Free"} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
-            </Link>
-            <button className="bg-transparent border border-[#1E293B] hover:bg-white/5 text-white font-medium px-8 py-4 rounded-full flex items-center gap-3 transition-all duration-300 backdrop-blur-md hover:-translate-y-1">
-              <Play className="w-5 h-5 text-white" /> Watch Demo
-            </button>
+      <main>
+        {/* ══════════════════════ HERO ════════════════════════════════════ */}
+        <section className="relative overflow-hidden">
+          {/* Background glow + grid */}
+          <div className="absolute inset-0 hero-glow pointer-events-none" />
+          <div className="absolute inset-0 grid-bg opacity-40 pointer-events-none" />
+
+          <div className="relative max-w-5xl mx-auto px-6 pt-28 pb-20 text-center">
+            {/* Badge */}
+            <div className="animate-fade-in-up inline-flex items-center gap-2 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-8 border"
+              style={{
+                background: "var(--accent-muted)",
+                borderColor: "var(--accent)",
+                color: "var(--accent-text)",
+              }}
+            >
+              <Star className="w-3 h-3" />
+              Open source · Built for developers
+            </div>
+
+            {/* Headline */}
+            <h1 className="animate-fade-in-up-delay-1 text-5xl md:text-7xl font-black tracking-tight mb-6 leading-[1.05]">
+              Write code{" "}
+              <span className="text-gradient">together</span>
+              <br />
+              <span style={{ color: "var(--text-secondary)", fontWeight: 700 }}>
+                in real-time.
+              </span>
+            </h1>
+
+            {/* Subheadline */}
+            <p
+              className="animate-fade-in-up-delay-2 text-lg max-w-2xl mx-auto mb-12 leading-relaxed"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              PeerPod is a multiplayer code editor with real-time sync, an integrated
+              terminal, and secure sandboxed execution — built for developer teams.
+            </p>
+
+            {/* CTA — two cards always visible, locked if not authed */}
+            <div className="animate-fade-in-up-delay-3 max-w-2xl mx-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                {/* ── Create Room Card ─────────────────────────────────── */}
+                <div
+                  className="relative rounded-2xl border p-6 flex flex-col gap-4 text-left transition-all duration-200"
+                  style={{
+                    background: "var(--bg-surface)",
+                    borderColor: "var(--border-strong)",
+                    boxShadow: "var(--shadow-md)",
+                  }}
+                  onMouseEnter={e => {
+                    (e.currentTarget as HTMLElement).style.borderColor = "var(--accent)";
+                    (e.currentTarget as HTMLElement).style.boxShadow = "var(--shadow-md), 0 0 24px var(--accent-glow)";
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLElement).style.borderColor = "var(--border-strong)";
+                    (e.currentTarget as HTMLElement).style.boxShadow = "var(--shadow-md)";
+                  }}
+                >
+                  {/* Icon */}
+                  <div
+                    className="w-11 h-11 flex items-center justify-center rounded-xl"
+                    style={{ background: "var(--accent-muted)", color: "var(--accent-text)" }}
+                  >
+                    <Plus className="w-5 h-5" />
+                  </div>
+
+                  <div>
+                    <h3 className="font-bold text-base mb-1" style={{ color: "var(--text-primary)" }}>
+                      Create a room
+                    </h3>
+                    <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                      Start a new collaborative session and share the code with your team.
+                    </p>
+                  </div>
+
+                  {isAuthed ? (
+                    <form onSubmit={handleCreate} className="flex flex-col gap-2 mt-auto">
+                      <input
+                        className="input-field"
+                        type="text"
+                        placeholder="Project name…"
+                        value={folderName}
+                        onChange={e => setFolderName(e.target.value)}
+                      />
+                      <button
+                        type="submit"
+                        disabled={creating}
+                        className="btn-primary w-full justify-center disabled:opacity-60"
+                      >
+                        <Plus className="w-4 h-4" />
+                        {creating ? 'Creating…' : 'Create Room'}
+                      </button>
+                    </form>
+                  ) : (
+                    <div className="mt-auto">
+                      <div
+                        className="flex items-center gap-2 text-xs font-medium mb-3 px-3 py-2 rounded-lg"
+                        style={{ background: "var(--bg-overlay)", color: "var(--text-muted)" }}
+                      >
+                        <Lock className="w-3.5 h-3.5 shrink-0" />
+                        Sign in to create a room
+                      </div>
+                      <Link to="/signup">
+                        <button className="btn-primary w-full justify-center">
+                          Get started — it's free
+                          <ArrowRight className="w-4 h-4" />
+                        </button>
+                      </Link>
+                    </div>
+                  )}
+                </div>
+
+                {/* ── Join Room Card ───────────────────────────────────── */}
+                <div
+                  className="relative rounded-2xl border p-6 flex flex-col gap-4 text-left transition-all duration-200"
+                  style={{
+                    background: "var(--bg-surface)",
+                    borderColor: "var(--border-strong)",
+                    boxShadow: "var(--shadow-md)",
+                  }}
+                  onMouseEnter={e => {
+                    (e.currentTarget as HTMLElement).style.borderColor = "var(--accent)";
+                    (e.currentTarget as HTMLElement).style.boxShadow = "var(--shadow-md), 0 0 24px var(--accent-glow)";
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLElement).style.borderColor = "var(--border-strong)";
+                    (e.currentTarget as HTMLElement).style.boxShadow = "var(--shadow-md)";
+                  }}
+                >
+                  {/* Icon */}
+                  <div
+                    className="w-11 h-11 flex items-center justify-center rounded-xl"
+                    style={{ background: "var(--accent-muted)", color: "var(--accent-text)" }}
+                  >
+                    <Hash className="w-5 h-5" />
+                  </div>
+
+                  <div>
+                    <h3 className="font-bold text-base mb-1" style={{ color: "var(--text-primary)" }}>
+                      Join a room
+                    </h3>
+                    <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                      Have a room code? Paste it below and jump straight into the session.
+                    </p>
+                  </div>
+
+                  {isAuthed ? (
+                    <form onSubmit={handleJoin} className="flex flex-col gap-2 mt-auto">
+                      <div className="relative">
+                        <Hash
+                          className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4"
+                          style={{ color: "var(--text-muted)" }}
+                        />
+                        <input
+                          className="input-field"
+                          style={{ paddingLeft: "2.5rem", letterSpacing: "0.12em", textTransform: "uppercase" }}
+                          type="text"
+                          placeholder="ROOM CODE"
+                          value={joinCode}
+                          onChange={e => setJoinCode(e.target.value.toUpperCase())}
+                          maxLength={6}
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        disabled={joining || !joinCode.trim()}
+                        className="btn-secondary w-full justify-center disabled:opacity-50"
+                      >
+                        <ArrowRight className="w-4 h-4" />
+                        {joining ? 'Joining…' : 'Join Room'}
+                      </button>
+                    </form>
+                  ) : (
+                    <div className="mt-auto">
+                      <div
+                        className="flex items-center gap-2 text-xs font-medium mb-3 px-3 py-2 rounded-lg"
+                        style={{ background: "var(--bg-overlay)", color: "var(--text-muted)" }}
+                      >
+                        <Lock className="w-3.5 h-3.5 shrink-0" />
+                        Sign in to join a room
+                      </div>
+                      <Link to="/login">
+                        <button className="btn-secondary w-full justify-center">
+                          Sign in
+                          <ArrowRight className="w-4 h-4" />
+                        </button>
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* Feature Grid - Premium Bento Style */}
-        <section className="w-full max-w-6xl mx-auto px-6 py-24 grid grid-cols-1 md:grid-cols-3 gap-6 border-y border-[#1E293B] mt-12 bg-white/[0.02]">
-          
-          {/* Shared Editor (Spans 2 cols) */}
-          <div className="md:col-span-2 group relative flex flex-col overflow-hidden rounded-[32px] bg-zinc-950/50 border border-[#1E293B] p-1 transition-all hover:border-[#334155]">
-            {/* Subtle Hover Gradient */}
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10/10 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-            
-            <div className="relative flex h-full flex-col rounded-[28px] bg-zinc-950 p-8 pt-10 overflow-hidden">
-              <div className="flex items-center gap-4 mb-5">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-900 border border-[#1E293B] shadow-inner">
-                  <FileCode2 className="w-6 h-6 text-white" />
+        {/* ══════════════════════ STATS ═══════════════════════════════════ */}
+        <section
+          className="border-t border-b"
+          style={{ borderColor: "var(--border)" }}
+        >
+          <div className="max-w-4xl mx-auto px-6 py-10 grid grid-cols-3 divide-x"
+            style={{ divideColor: "var(--border)" }}>
+            {stats.map((s, i) => (
+              <div
+                key={s.label}
+                className={`px-6 text-center animate-fade-in-up`}
+                style={{ animationDelay: `${i * 0.1}s` }}
+              >
+                <div
+                  className="text-3xl md:text-4xl font-black mb-1 text-gradient"
+                >
+                  {s.value}
                 </div>
-                <h3 className="text-2xl font-bold text-white tracking-tight">Multi-player Editor</h3>
-              </div>
-              <p className="text-white/60 text-base mb-10 max-w-md leading-relaxed">
-                True zero-latency collaborative typing. See your team's cursors fly across the screen with framework-aware syntax highlighting.
-              </p>
-              
-              {/* Mockup Window */}
-              <div className="flex-1 rounded-t-xl bg-zinc-900 border-x border-t border-[#1E293B] shadow-2xl relative overflow-hidden flex flex-col mt-auto group-hover:-translate-y-2 transition-transform duration-500">
-                <div className="h-10 border-b border-[#1E293B] bg-zinc-900/50 flex items-center px-4 gap-2">
-                  <div className="w-3 h-3 rounded-full bg-white/10/80"></div>
-                  <div className="w-3 h-3 rounded-full bg-amber-500/80"></div>
-                  <div className="w-3 h-3 rounded-full bg-white/10/80"></div>
-                  <div className="mx-auto text-[10px] font-medium text-white/50 font-mono tracking-widest uppercase">server.js</div>
-                </div>
-                <div className="p-6 font-mono text-[13px] leading-loose text-white/80">
-                  <span className="text-white">const</span> <span className="text-white">express</span> = <span className="text-white">require</span>(<span className="text-white">'express'</span>);<br/>
-                  <span className="text-white">const</span> <span className="text-white">app</span> = <span className="text-white">express</span>();<br/><br/>
-                  <span className="text-white/50 italic">// Real-time cursor from Sarah</span><br/>
-                  app.<span className="text-white">listen</span>(<span className="text-amber-400">3000</span>, () =&gt; {"{"}<br/>
-                  &nbsp;&nbsp;<span className="text-white">console</span>.<span className="text-white">log</span>(<span className="text-white">'Server running in flow...'</span><span className="border-l-[2px] border-[#1E293B] animate-pulse ml-0.5"></span>);<br/>
-                  {"});"}
+                <div className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>
+                  {s.label}
                 </div>
               </div>
-            </div>
+            ))}
           </div>
-
-          {/* Voice Chat */}
-          <div className="group relative flex flex-col overflow-hidden rounded-[32px] bg-zinc-950/50 border border-[#1E293B] p-1 transition-all hover:border-[#334155]">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10/10 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-            
-            <div className="relative flex h-full flex-col rounded-[28px] bg-zinc-950 p-8 pt-10 overflow-hidden">
-              <div className="flex items-center gap-4 mb-5">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-900 border border-[#1E293B] shadow-inner">
-                  <Mic className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-2xl font-bold text-white tracking-tight">Spatial Audio</h3>
-              </div>
-              <p className="text-white/60 text-base mb-10 leading-relaxed">
-                Integrated audio channels linked to your working directory.
-              </p>
-              
-              <div className="flex-1 flex flex-col gap-4 justify-end mt-auto">
-                <div className="bg-zinc-900 border border-[#1E293B] rounded-2xl p-4 flex items-center justify-between shadow-lg group-hover:-translate-y-1 transition-transform duration-300">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-white/10 to-transparent text-white flex items-center justify-center font-bold text-sm shadow-inner">S</div>
-                    <span className="font-medium text-white">Sarah</span>
-                  </div>
-                  <div className="w-2.5 h-2.5 rounded-full bg-white/10 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse"></div>
-                </div>
-                <div className="bg-zinc-900/50 border border-[#1E293B] rounded-2xl p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-4 opacity-50">
-                    <div className="w-10 h-10 rounded-full bg-zinc-800 text-white/60 flex items-center justify-center font-bold text-sm">M</div>
-                    <span className="font-medium text-white">Mike</span>
-                  </div>
-                  <Mic className="w-4 h-4 text-zinc-600" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Integrated Terminal */}
-          <div className="group relative flex flex-col overflow-hidden rounded-[32px] bg-zinc-950/50 border border-[#1E293B] p-1 transition-all hover:border-[#334155]">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10/10 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-            
-            <div className="relative flex h-full flex-col rounded-[28px] bg-zinc-950 p-8 pt-10 overflow-hidden">
-              <div className="flex items-center gap-4 mb-5">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-900 border border-[#1E293B] shadow-inner">
-                  <Terminal className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-2xl font-bold text-white tracking-tight">Cloud Terminal</h3>
-              </div>
-              <p className="text-white/60 text-base mb-10 leading-relaxed">
-                Secure pty sessions mapped to your root. Run builds instantly.
-              </p>
-              
-              <div className="flex-1 rounded-t-xl bg-zinc-900 border-x border-t border-[#1E293B] shadow-2xl relative overflow-hidden flex flex-col mt-auto group-hover:-translate-y-2 transition-transform duration-500">
-                <div className="h-10 border-b border-[#1E293B] bg-zinc-900/50 flex items-center px-4 gap-2">
-                  <div className="mx-auto text-[10px] font-medium text-white/50 font-mono tracking-widest uppercase">bash</div>
-                </div>
-                <div className="p-6 font-mono text-[13px] leading-loose text-white/80">
-                  <div className="text-white font-semibold">$ npm run dev</div>
-                  <div className="text-white/60 mt-3">VITE v4.3.2 ready in 320 ms</div>
-                  <div className="mt-5 flex gap-3 text-white/80">
-                    <span className="text-white font-bold">➜</span>
-                    <span className="font-semibold">Local:</span>
-                    <span className="text-white underline decoration-cyan-400/30 underline-offset-4">http://localhost:5173/</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Real-time Whiteboard (Spans 2 cols) */}
-          <div className="md:col-span-2 group relative flex flex-col overflow-hidden rounded-[32px] bg-zinc-950/50 border border-[#1E293B] p-1 transition-all hover:border-[#334155]">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10/10 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-            
-            <div className="relative flex h-full flex-col rounded-[28px] bg-zinc-950 p-8 pt-10 overflow-hidden">
-              <div className="flex items-center gap-4 mb-5">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-900 border border-[#1E293B] shadow-inner">
-                  <Layout className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-2xl font-bold text-white tracking-tight">Infinite Whiteboard</h3>
-              </div>
-              <p className="text-white/60 text-base mb-10 max-w-md leading-relaxed">
-                Map out complex architecture, database schemas, and component trees visually before you ever write a single line of code.
-              </p>
-              
-              <div className="flex-1 bg-zinc-900 border border-[#1E293B] rounded-2xl p-10 flex items-center justify-center relative shadow-inner group-hover:scale-[1.02] transition-transform duration-500">
-                <div className="absolute inset-0 grid-bg opacity-20" />
-                <div className="flex items-center gap-12 w-full max-w-md relative z-10">
-                  <div className="flex-1 bg-zinc-800 border border-[#1E293B] rounded-xl p-5 text-center shadow-xl">
-                    <div className="text-sm font-semibold text-white mb-1">Client</div>
-                    <div className="text-[10px] text-white/60 font-mono">React App</div>
-                  </div>
-                  <div className="flex-1 border-t-2 border-dashed border-zinc-600 relative flex items-center justify-center">
-                    <div className="absolute bg-zinc-900 px-4 py-1 rounded-full border border-zinc-700 text-white/60 text-[10px] font-mono tracking-widest shadow-md">REST</div>
-                  </div>
-                  <div className="flex-1 bg-zinc-800 border border-[#1E293B] rounded-xl p-5 text-center shadow-xl">
-                    <div className="text-sm font-semibold text-white mb-1">Server</div>
-                    <div className="text-[10px] text-white/60 font-mono">Node Engine</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
         </section>
+
+        {/* ══════════════════════ EDITOR PREVIEW ══════════════════════════ */}
+        <section className="max-w-5xl mx-auto px-6 py-24">
+          <div className="text-center mb-14">
+            <h2
+              className="text-3xl md:text-4xl font-bold mb-4"
+              style={{ color: "var(--text-primary)" }}
+            >
+              The editor teams love
+            </h2>
+            <p className="text-base max-w-xl mx-auto" style={{ color: "var(--text-secondary)" }}>
+              Monaco Editor under the hood — the same engine that powers VS Code.
+            </p>
+          </div>
+
+          <div className="code-window animate-float">
+            {/* Window bar */}
+            <div className="code-window-bar">
+              <div className="code-dot" style={{ background: "#ff5f57" }} />
+              <div className="code-dot" style={{ background: "#febc2e" }} />
+              <div className="code-dot" style={{ background: "#28c840" }} />
+              <span className="ml-3 text-xs font-mono" style={{ color: "var(--text-muted)" }}>
+                main.py
+              </span>
+              <div className="ml-auto flex items-center gap-4">
+                <div className="flex items-center gap-1.5 text-xs" style={{ color: "var(--green)" }}>
+                  <div className="w-1.5 h-1.5 rounded-full animate-pulse-soft" style={{ background: "var(--green)" }} />
+                  3 collaborators online
+                </div>
+              </div>
+            </div>
+
+            {/* Code body */}
+            <div className="p-6 font-mono text-sm leading-8" style={{ color: "var(--text-secondary)" }}>
+              {/* User avatar indicator */}
+              <div className="flex items-center gap-2 mb-4 -mt-1">
+                {[
+                  { color: '#6366f1', label: 'Alice' },
+                  { color: '#34d399', label: 'Bob' },
+                  { color: '#f59e0b', label: 'Carol' },
+                ].map(u => (
+                  <div key={u.label} className="flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-full border"
+                    style={{ borderColor: u.color, color: u.color, background: u.color + '18' }}>
+                    <div className="w-1.5 h-1.5 rounded-full" style={{ background: u.color }} />
+                    {u.label}
+                  </div>
+                ))}
+              </div>
+
+              <div>
+                <span style={{ color: "#a5b4fc" }}>def</span>{" "}
+                <span style={{ color: "var(--text-primary)" }}>fibonacci</span>
+                <span>(n: </span>
+                <span style={{ color: "#a5b4fc" }}>int</span>
+                <span>) -&gt; </span>
+                <span style={{ color: "#a5b4fc" }}>list</span>
+                <span>[</span>
+                <span style={{ color: "#a5b4fc" }}>int</span>
+                <span>]:</span>
+              </div>
+              <div className="pl-8">
+                <span style={{ color: "var(--text-muted)" }}>"""</span>
+                <span style={{ color: "#86efac" }}>Alice is typing here...</span>
+                <span
+                  className="inline-block w-0.5 h-4 ml-0.5 -mb-1 cursor-blink"
+                  style={{ background: "#6366f1" }}
+                />
+              </div>
+              <div className="pl-8">
+                <span style={{ color: "#a5b4fc" }}>if</span>{" "}
+                <span>n &lt;= </span>
+                <span style={{ color: "#f9a8d4" }}>1</span>
+                <span>:</span>
+              </div>
+              <div className="pl-16">
+                <span style={{ color: "#a5b4fc" }}>return</span>{" "}
+                <span>[</span>
+                <span style={{ color: "#f9a8d4" }}>0</span>
+                <span>][:n]</span>
+              </div>
+              <div className="pl-8">
+                <span>seq </span>
+                <span style={{ color: "var(--text-secondary)" }}>= [</span>
+                <span style={{ color: "#f9a8d4" }}>0</span>
+                <span>, </span>
+                <span style={{ color: "#f9a8d4" }}>1</span>
+                <span>]</span>
+              </div>
+            </div>
+
+            {/* Terminal output */}
+            <div
+              className="border-t px-6 py-4 font-mono text-xs"
+              style={{ borderColor: "var(--border)", background: "var(--bg-raised)" }}
+            >
+              <div style={{ color: "var(--text-muted)" }}>$ python main.py</div>
+              <div className="mt-1" style={{ color: "var(--green)" }}>
+                [0, 1, 1, 2, 3, 5, 8, 13, 21]
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════ FEATURES ════════════════════════════════ */}
+        <section
+          className="border-t"
+          style={{ borderColor: "var(--border)" }}
+        >
+          <div className="max-w-5xl mx-auto px-6 py-24">
+            <div className="text-center mb-14">
+              <h2
+                className="text-3xl md:text-4xl font-bold mb-4"
+                style={{ color: "var(--text-primary)" }}
+              >
+                Everything you need
+              </h2>
+              <p className="text-base max-w-xl mx-auto" style={{ color: "var(--text-secondary)" }}>
+                Built from the ground up for collaborative development — no compromises.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {features.map((f, i) => (
+                <div
+                  key={f.title}
+                  className="feature-card animate-fade-in-up"
+                  style={{ animationDelay: `${i * 0.07}s` }}
+                >
+                  <div
+                    className="w-10 h-10 flex items-center justify-center rounded-xl mb-4"
+                    style={{
+                      background: "var(--accent-muted)",
+                      color: "var(--accent-text)",
+                    }}
+                  >
+                    {f.icon}
+                  </div>
+                  <h3
+                    className="font-semibold text-base mb-2"
+                    style={{ color: "var(--text-primary)" }}
+                  >
+                    {f.title}
+                  </h3>
+                  <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                    {f.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════ CTA BAND ════════════════════════════════ */}
+        {!isAuthed && (
+          <section
+            className="border-t"
+            style={{ borderColor: "var(--border)" }}
+          >
+            <div className="max-w-3xl mx-auto px-6 py-24 text-center">
+              <div
+                className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1 rounded-full mb-6 border"
+                style={{ background: "var(--accent-muted)", borderColor: "var(--accent)", color: "var(--accent-text)" }}
+              >
+                <Globe className="w-3 h-3" />
+                Free forever for individuals
+              </div>
+              <h2
+                className="text-3xl md:text-4xl font-bold mb-5 leading-tight"
+                style={{ color: "var(--text-primary)" }}
+              >
+                Ready to build together?
+              </h2>
+              <p className="text-base mb-8" style={{ color: "var(--text-secondary)" }}>
+                Create your first room in seconds. No credit card required.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <Link to="/signup">
+                  <button className="btn-primary glow-pulse text-base px-8 py-3">
+                    Start for free
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </Link>
+                <Link to="/login">
+                  <button className="btn-ghost text-base">
+                    Already have an account? Sign in →
+                  </button>
+                </Link>
+              </div>
+            </div>
+          </section>
+        )}
       </main>
 
-      <footer className="border-t border-[#1E293B] bg-[#080420] py-10 px-6 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-6 text-sm text-white/50 relative z-10 mt-12">
-        <div className="flex items-center gap-3">
-          <img src="/logo.png" alt="CodeFlow Logo" className="h-8 w-auto scale-125 origin-left object-contain drop-shadow-md" />
-          <span className="font-bold text-white tracking-tight text-lg">CodeFlow</span>
+      {/* ══════════════════════ FOOTER ══════════════════════════════════ */}
+      <footer
+        className="border-t py-10 px-6 lg:px-12"
+        style={{ borderColor: "var(--border)" }}
+      >
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-2.5">
+            <img src="/logo.png" alt="PeerPod" className="h-5 w-auto object-contain opacity-50" />
+            <span className="font-semibold text-sm" style={{ color: "var(--text-secondary)" }}>
+              PeerPod
+            </span>
+          </div>
+          <div className="flex items-center gap-6 text-xs" style={{ color: "var(--text-muted)" }}>
+            <span className="hover:text-[var(--text-secondary)] cursor-pointer transition-colors">Privacy</span>
+            <span className="hover:text-[var(--text-secondary)] cursor-pointer transition-colors">Terms</span>
+            <Link to="/docs" className="hover:text-[var(--text-secondary)] transition-colors">Docs</Link>
+          </div>
+          <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+            © 2026 PeerPod. Built for developers.
+          </p>
         </div>
-        <div className="flex flex-wrap items-center justify-center gap-10 font-medium">
-          <span className="hover:text-white cursor-pointer transition-colors">Privacy Policy</span>
-          <span className="hover:text-white cursor-pointer transition-colors">Terms of Service</span>
-          <span className="hover:text-white cursor-pointer transition-colors">API Docs</span>
-          <span className="hover:text-white cursor-pointer transition-colors">System Status</span>
-        </div>
-        <div className="font-medium">© 2026 CodeFlow. Crafted for Hackers.</div>
       </footer>
     </div>
   );

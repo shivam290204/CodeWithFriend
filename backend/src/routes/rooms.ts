@@ -18,7 +18,7 @@ router.post('/', async (req: any, res: any) => {
   try {
     const parseResult = createRoomSchema.safeParse(req.body);
     if (!parseResult.success) {
-      const msg = parseResult.error.errors.map(e => e.message).join(', ');
+      const msg = parseResult.error.issues.map(e => e.message).join(', ');
       return res.status(400).json({ error: msg });
     }
     const { name, language } = parseResult.data;
@@ -49,7 +49,7 @@ router.post('/join', async (req: any, res: any) => {
   try {
     const parseResult = joinRoomSchema.safeParse(req.body);
     if (!parseResult.success) {
-      const msg = parseResult.error.errors.map(e => e.message).join(', ');
+      const msg = parseResult.error.issues.map(e => e.message).join(', ');
       return res.status(400).json({ error: msg });
     }
     const { roomCode } = parseResult.data;
