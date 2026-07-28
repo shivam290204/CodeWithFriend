@@ -94,38 +94,7 @@ export default function Home() {
   };
 
   /* ── Data ──────────────────────────────────────────────────────────── */
-  const features = [
-    {
-      icon: <Users className="w-5 h-5" />,
-      title: "Multiplayer editing",
-      desc: "See every keystroke in real-time with named cursors and presence indicators.",
-    },
-    {
-      icon: <Terminal className="w-5 h-5" />,
-      title: "Sandboxed execution",
-      desc: "Run Python, JavaScript, TypeScript and C++ in isolated containers instantly.",
-    },
-    {
-      icon: <Lock className="w-5 h-5" />,
-      title: "Access-controlled rooms",
-      desc: "Share a 6-character code to invite collaborators. Nothing is public by default.",
-    },
-    {
-      icon: <GitBranch className="w-5 h-5" />,
-      title: "Multi-file projects",
-      desc: "Organise your work into files and folders with independent editor tabs.",
-    },
-    {
-      icon: <Code2 className="w-5 h-5" />,
-      title: "Monaco editor",
-      desc: "Powered by the same engine as VS Code — full autocomplete and keybindings.",
-    },
-    {
-      icon: <Zap className="w-5 h-5" />,
-      title: "Zero setup",
-      desc: "No downloads or installs. Create a room and share the code in seconds.",
-    },
-  ];
+
 
   const stats = [
     { value: "50ms", label: "Avg. sync latency" },
