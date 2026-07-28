@@ -107,7 +107,11 @@ router.post('/signup', authLimiter, async (req, res) => {
       userAgent: req.headers['user-agent']
     }).save();
 
-    res.status(201).json({ user: { id: user.id, name: user.name, email: user.email, emailVerified: user.emailVerified } });
+    res.status(201).json({ 
+      user: { id: user.id, name: user.name, email: user.email, emailVerified: user.emailVerified },
+      accessToken,
+      refreshToken: refreshRaw
+    });
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
   }
@@ -168,14 +172,18 @@ router.post('/login', authLimiter, async (req, res) => {
 
     await new AuthEvent({ userId: user._id as any, email, eventType: 'login_success', ipAddress: req.ip, userAgent: req.headers['user-agent'] }).save();
 
-    res.status(200).json({ user: { id: user.id, name: user.name, email: user.email, emailVerified: user.emailVerified } });
+    res.status(200).json({ 
+      user: { id: user.id, name: user.name, email: user.email, emailVerified: user.emailVerified },
+      accessToken,
+      refreshToken: refreshRaw
+    });
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 router.post('/refresh', async (req, res) => {
-  const refreshTokenRaw = req.cookies.refreshToken;
+  const refreshTokenRaw = req.body.refreshToken || req.cookies.refreshToken;
   if (!refreshTokenRaw) {
     return res.status(401).json({ error: 'No refresh token' });
   }
@@ -209,14 +217,18 @@ router.post('/refresh', async (req, res) => {
 
     await new AuthEvent({ userId: user._id, email: user.email, eventType: 'refresh_token_rotated', ipAddress: req.ip, userAgent: req.headers['user-agent'] }).save();
 
-    res.status(200).json({ user: { id: user.id, name: user.name, email: user.email, emailVerified: user.emailVerified } });
+    res.status(200).json({ 
+      user: { id: user.id, name: user.name, email: user.email, emailVerified: user.emailVerified },
+      accessToken,
+      refreshToken: newRefreshRaw
+    });
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
   }
 });
 
 router.post('/logout', async (req, res) => {
-  const refreshTokenRaw = req.cookies.refreshToken;
+  const refreshTokenRaw = req.body.refreshToken || req.cookies.refreshToken;
   if (refreshTokenRaw) {
     const hashed = hashToken(refreshTokenRaw);
     await RefreshToken.updateOne({ tokenHash: hashed }, { revoked: true });
